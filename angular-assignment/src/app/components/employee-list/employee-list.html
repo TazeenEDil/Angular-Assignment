@@ -1,0 +1,16 @@
+<h2>Employee List</h2>
+
+<p>Total Employees: {{ empService.getEmployees().length }}</p>
+
+<ul>
+  <li *ngFor="let emp of empService.getEmployees()"
+      (click)="select(emp.id)"
+      [ngClass]="{'selected': selectedId === emp.id}">
+
+    {{ emp.name }} - {{ emp.email }} - {{ emp.department }}
+
+    <button (click)="deleteEmployee(emp.id)">
+      Delete
+    </button>
+  </li>
+</ul>

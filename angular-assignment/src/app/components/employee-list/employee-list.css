@@ -1,0 +1,7 @@
+.selected {
+  background-color: #e0f2fe;
+}
+.employee-table {
+  width: 100%;
+  border-collapse: collapse;
+}
