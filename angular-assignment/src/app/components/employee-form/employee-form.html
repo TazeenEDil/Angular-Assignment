@@ -1,0 +1,42 @@
+<h2>Add Employee</h2>
+
+<form #empForm="ngForm" (ngSubmit)="addEmployee()">
+
+  <input
+    type="text"
+    name="name"
+    [(ngModel)]="employee.name"
+    required
+    placeholder="Name"
+  />
+
+  <div *ngIf="empForm.submitted && !employee.name">
+    Name is required
+  </div>
+
+  <input
+    type="email"
+    name="email"
+    [(ngModel)]="employee.email"
+    required
+    email
+    placeholder="Email"
+  />
+
+  <div *ngIf="empForm.submitted && !employee.email">
+    Valid email required
+  </div>
+
+  <input
+    type="text"
+    name="department"
+    [(ngModel)]="employee.department"
+    required
+    placeholder="Department"
+  />
+
+  <button type="submit" [disabled]="empForm.invalid">
+    Add Employee
+  </button>
+
+</form>
