@@ -9,8 +9,10 @@ import { Employee } from '../../models/employee.model';
 @Component({
   selector: 'app-employee-form',
   standalone: true,
-  imports: [FormsModule, CommonModule],
-  templateUrl: './employee-form.html'
+  imports: [FormsModule, CommonModule,],
+  templateUrl: './employee-form.html',
+  styleUrls: ['./employee-form.css']  
+
 })
 export class EmployeeForm {
 

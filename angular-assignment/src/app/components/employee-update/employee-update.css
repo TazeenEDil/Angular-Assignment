@@ -1,6 +1,6 @@
+/* Form Container Styling */
 form {
-  max-width: 400px;
-  max-height: auto;
+  max-width: 600px;
   margin: 50px auto;
   padding: 50px 60px;
   border: none;
@@ -11,13 +11,14 @@ form {
 
 h2 {
   text-align: center;
-  color: #162e56;
+  color: #1e293b;
   font-size: 32px;
   font-weight: 600;
   margin-bottom: 35px;
   letter-spacing: 0.5px;
 }
 
+/* Input Field Styling */
 input {
   width: 100%;
   padding: 16px 20px;
@@ -47,6 +48,7 @@ input.ng-valid.ng-touched {
   background-color: #f0fdf4;
 }
 
+/* Validation Error Styling */
 .validation-error {
   color: #ef4444;
   font-size: 14px;
@@ -63,34 +65,61 @@ input.ng-valid.ng-touched {
   font-size: 16px;
 }
 
-button {
-  width: 100%;
+/* Button Group Styling */
+.button-group {
+  display: flex;
+  gap: 15px;
   margin-top: 30px;
-  padding: 16px;
-  background: linear-gradient(135deg, #316491 0%, #2e2392 100%);
-  color: white;
+}
+
+.button-group button {
+  flex: 1;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
 }
 
-button:hover:not(:disabled) {
+/* Submit Button (Update) */
+button[type="submit"] {
+  background: linear-gradient(135deg, #316491 0%, #2e2392 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(49, 100, 145, 0.3);
+}
+
+button[type="submit"]:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(79, 172, 254, 0.4);
+  box-shadow: 0 6px 16px rgba(49, 100, 145, 0.4);
 }
 
-button:active:not(:disabled) {
+button[type="submit"]:active:not(:disabled) {
   transform: translateY(0);
 }
 
-button:disabled {
+button[type="submit"]:disabled {
   background: linear-gradient(135deg, #5f7998 0%, #28446b 100%);
   cursor: not-allowed;
-  box-shadow: none;
   opacity: 0.6;
+  box-shadow: none;
+}
+
+/* Cancel Button */
+button[type="button"] {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+}
+
+button[type="button"]:hover {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(71, 85, 105, 0.4);
+}
+
+button[type="button"]:active {
+  transform: translateY(0);
 }

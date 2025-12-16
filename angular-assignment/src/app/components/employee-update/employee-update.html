@@ -1,6 +1,6 @@
-<h2>Add Employee</h2>
+<h2>Update Employee</h2>
 
-<form #empForm="ngForm" (ngSubmit)="addEmployee()">
+<form #empForm="ngForm" (ngSubmit)="updateEmployee()">
 
   <input
     type="text"
@@ -48,8 +48,13 @@
     </div>
   }
 
-  <button type="submit" [disabled]="empForm.invalid">
-    Add Employee
-  </button>
+  <div class="button-group">
+    <button type="submit" [disabled]="empForm.invalid">
+      Update Employee
+    </button>
+    <button type="button" (click)="cancel()">
+      Cancel
+    </button>
+  </div>
 
 </form>

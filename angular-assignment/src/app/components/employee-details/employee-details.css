@@ -1,0 +1,87 @@
+h2 {
+  text-align: center;
+  color: #1e293b;
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  letter-spacing: 0.5px;
+}
+
+.details-container {
+  max-width: 650px;
+  margin: 50px auto;
+  padding: 40px 50px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.detail-row:hover {
+  border-color: #4facfe;
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15);
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-row strong {
+  color: #475569;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-row span {
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+button {
+  width: 100%;
+  margin-top: 30px;
+  padding: 14px;
+  background: linear-gradient(135deg, #316491 0%, #2e2392 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(49, 100, 145, 0.3);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(49, 100, 145, 0.4);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Styling for "Employee not found" message */
+p {
+  text-align: center;
+  color: #64748b;
+  font-size: 18px;
+  margin: 30px 0;
+}

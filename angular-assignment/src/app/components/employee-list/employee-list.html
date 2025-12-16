@@ -2,15 +2,39 @@
 
 <p>Total Employees: {{ empService.getEmployees().length }}</p>
 
-<ul>
-  <li *ngFor="let emp of empService.getEmployees()"
-      (click)="select(emp.id)"
-      [ngClass]="{'selected': selectedId === emp.id}">
+<table class="employee-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Department</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
 
-    {{ emp.name }} - {{ emp.email }} - {{ emp.department }}
+  <tbody>
+    @for (emp of empService.getEmployees(); track emp.id) {
+      <tr (click)="select(emp.id)"
+          [ngClass]="{'selected': selectedId === emp.id}">
 
-    <button (click)="deleteEmployee(emp.id)">
-      Delete
-    </button>
-  </li>
-</ul>
+        <td>{{ emp.name }}</td>
+        <td>{{ emp.email }}</td>
+        <td>{{ emp.department }}</td>
+        <td>
+          <button class="details-btn"
+                  (click)="viewDetails(emp.id); $event.stopPropagation()">
+            Details
+          </button>
+          <button class="update-btn"
+                  (click)="updateEmployee(emp.id); $event.stopPropagation()">
+            Update
+          </button>
+          <button class="delete-btn"
+                  (click)="deleteEmployee(emp.id); $event.stopPropagation()">
+            Delete
+          </button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
