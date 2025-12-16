@@ -1,0 +1,26 @@
+<h2>Employee Details</h2>
+
+@if (employee) {
+  <div class="details-container">
+    <div class="detail-row">
+      <strong>ID:</strong>
+      <span>{{ employee.id }}</span>
+    </div>
+    <div class="detail-row">
+      <strong>Name:</strong>
+      <span>{{ employee.name }}</span>
+    </div>
+    <div class="detail-row">
+      <strong>Email:</strong>
+      <span>{{ employee.email }}</span>
+    </div>
+    <div class="detail-row">
+      <strong>Department:</strong>
+      <span>{{ employee.department }}</span>
+    </div>
+    <button (click)="goBack()">Back to List</button>
+  </div>
+} @else {
+  <p>Employee not found!</p>
+  <button (click)="goBack()">Back to List</button>
+}
