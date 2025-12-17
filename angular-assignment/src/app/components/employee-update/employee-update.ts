@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { EmployeeService } from '../../services/employee';
+import { Router } from '@angular/router';
 import { Employee } from '../../models/employee.model';
 
 @Component({
@@ -12,38 +11,18 @@ import { Employee } from '../../models/employee.model';
   templateUrl: './employee-update.html',
   styleUrls: ['./employee-update.css']
 })
-export class EmployeeUpdate implements OnInit {
+export class EmployeeUpdate {
 
   employee: Employee = {
-    id: 0,
     name: '',
     email: '',
-    department: ''
+    position: ''
   };
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private empService: EmployeeService
-  ) {}
-
-  ngOnInit() {
-    // Get employee id from route
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    // Fetch employee data
-    const existingEmployee = this.empService.getEmployeeById(id);
-    
-    if (existingEmployee) {
-      // Create a copy to avoid direct mutation
-      this.employee = { ...existingEmployee };
-    } else {
-      // If employee not found, go back to list
-      this.router.navigate(['/']);
-    }
-  }
+  constructor(private router: Router) {}
 
   updateEmployee() {
-    this.empService.updateEmployee(this.employee);
+    alert('Update not supported by backend yet');
     this.router.navigate(['/']);
   }
 

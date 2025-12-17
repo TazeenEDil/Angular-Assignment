@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { EmployeeService } from '../../services/employee';
+import { Router } from '@angular/router';
 import { Employee } from '../../models/employee.model';
 
 @Component({
@@ -11,21 +10,15 @@ import { Employee } from '../../models/employee.model';
   templateUrl: './employee-details.html',
   styleUrls: ['./employee-details.css']
 })
-export class EmployeeDetails implements OnInit {
+export class EmployeeDetails {
 
-  employee: Employee | undefined;
+  employee: Employee | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private empService: EmployeeService
-  ) {}
+  constructor(private router: Router) {}
 
   ngOnInit() {
-    // Get employee id from route parameters
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    // Fetch employee from service
-    this.employee = this.empService.getEmployeeById(id);
+    alert('Employee details not supported by backend yet');
+    this.router.navigate(['/']);
   }
 
   goBack() {

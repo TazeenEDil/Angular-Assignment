@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { EmployeeService } from '../../services/employee';
+import { Employee } from '../../models/employee.model';
 
 @Component({
   selector: 'app-employee-list',
@@ -10,34 +11,38 @@ import { EmployeeService } from '../../services/employee';
   templateUrl: './employee-list.html',
   styleUrls: ['./employee-list.css']
 })
-export class EmployeeList {
+export class EmployeeList implements OnInit {
+
+  employees: Employee[] = [];
 
   selectedId: number | null = null;
 
   constructor(
-    public empService: EmployeeService,
-    private router: Router  // Inject router
+    private empService: EmployeeService,
+    private router: Router
   ) {}
 
+  ngOnInit() {
+    this.empService.getEmployees().subscribe({
+      next: data => this.employees = data,
+      error: err => console.error(err)
+    });
+  }
+
+  
   select(id: number) {
     this.selectedId = id;
   }
 
-  // Navigate to details page
   viewDetails(id: number) {
-    this.router.navigate(['/details', id]);
+    alert('Details not supported yet');
   }
 
-  // Navigate to update page
   updateEmployee(id: number) {
-    this.router.navigate(['/update', id]);
+    alert('Update not supported yet');
   }
 
-  // Delete employee
   deleteEmployee(id: number) {
-    if (confirm('Are you sure you want to delete this employee?')) {
-      this.empService.deleteEmployee(id);
-      console.log('Deleted employee with id:', id);
-    }
+    alert('Delete not supported yet');
   }
 }
