@@ -12,13 +12,28 @@ export class EmployeeService {
 
   constructor(private http: HttpClient) {}
 
-  // GET ALL
+  // GET ALL Employees
   getEmployees(): Observable<Employee[]> {
     return this.http.get<Employee[]>(this.apiUrl);
   }
 
-  // CREATE
-  addEmployee(emp: Employee): Observable<any> {
-    return this.http.post(this.apiUrl, emp);
+  // GET Single Employee by ID
+  getEmployeeById(id: number): Observable<Employee> {
+    return this.http.get<Employee>(`${this.apiUrl}/${id}`);
+  }
+
+  // CREATE Employee
+  addEmployee(emp: Omit<Employee, 'id' | 'createdAt'>): Observable<Employee> {
+    return this.http.post<Employee>(this.apiUrl, emp);
+  }
+
+  // UPDATE Employee
+  updateEmployee(id: number, emp: Omit<Employee, 'id' | 'createdAt'>): Observable<Employee> {
+    return this.http.put<Employee>(`${this.apiUrl}/${id}`, emp);
+  }
+
+  // DELETE Employee
+  deleteEmployee(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }
