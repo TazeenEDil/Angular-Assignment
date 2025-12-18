@@ -14,8 +14,9 @@ import { Employee } from '../../models/employee.model';
 export class EmployeeList implements OnInit {
 
   employees: Employee[] = [];
-
   selectedId: number | null = null;
+  loading: boolean = false;
+  error: string = '';
 
   constructor(
     private empService: EmployeeService,
@@ -23,26 +24,54 @@ export class EmployeeList implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadEmployees();
+  }
+
+  loadEmployees() {
+    this.loading = true;
+    this.error = '';
     this.empService.getEmployees().subscribe({
-      next: data => this.employees = data,
-      error: err => console.error(err)
+      next: data => {
+        this.employees = data;
+        this.loading = false;
+      },
+      error: err => {
+        console.error(err);
+        this.error = 'Failed to load employees. Please try again.';
+        this.loading = false;
+      }
     });
   }
 
-  
   select(id: number) {
     this.selectedId = id;
   }
 
   viewDetails(id: number) {
-    alert('Details not supported yet');
+    this.router.navigate(['/employee', id]);
   }
 
   updateEmployee(id: number) {
-    alert('Update not supported yet');
+    this.router.navigate(['/employee/edit', id]);
   }
 
   deleteEmployee(id: number) {
-    alert('Delete not supported yet');
+    const employee = this.employees.find(e => e.id === id);
+    if (!employee) return;
+
+    if (confirm(`Are you sure you want to delete ${employee.name}?`)) {
+      this.empService.deleteEmployee(id).subscribe({
+        next: () => {
+          // Remove from local array
+          this.employees = this.employees.filter(e => e.id !== id);
+          this.selectedId = null;
+          alert('Employee deleted successfully!');
+        },
+        error: err => {
+          console.error(err);
+          alert('Failed to delete employee. Please try again.');
+        }
+      });
+    }
   }
 }
