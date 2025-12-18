@@ -1,36 +1,36 @@
 <h2>Employee List</h2>
 
-<p>Total Employees: {{ empService.getEmployees().length }}</p>
+<p>Total Employees: {{ employees.length }}</p>
 
 <table class="employee-table">
   <thead>
     <tr>
       <th>Name</th>
       <th>Email</th>
-      <th>Department</th>
+      <th>Position</th>
       <th>Actions</th>
     </tr>
   </thead>
 
   <tbody>
-    @for (emp of empService.getEmployees(); track emp.id) {
-      <tr (click)="select(emp.id)"
+    @for (emp of employees; track emp.id) {
+      <tr (click)="select(emp.id!)"
           [ngClass]="{'selected': selectedId === emp.id}">
 
         <td>{{ emp.name }}</td>
         <td>{{ emp.email }}</td>
-        <td>{{ emp.department }}</td>
+        <td>{{ emp.position }}</td>
         <td>
           <button class="details-btn"
-                  (click)="viewDetails(emp.id); $event.stopPropagation()">
+                  (click)="viewDetails(emp.id!); $event.stopPropagation()">
             Details
           </button>
           <button class="update-btn"
-                  (click)="updateEmployee(emp.id); $event.stopPropagation()">
+                  (click)="updateEmployee(emp.id!); $event.stopPropagation()">
             Update
           </button>
           <button class="delete-btn"
-                  (click)="deleteEmployee(emp.id); $event.stopPropagation()">
+                  (click)="deleteEmployee(emp.id!); $event.stopPropagation()">
             Delete
           </button>
         </td>

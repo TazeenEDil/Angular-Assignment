@@ -35,14 +35,14 @@
 
   <input
     type="text"
-    name="department"
-    [(ngModel)]="employee.department"
+    name="position"
+    [(ngModel)]="employee.position"
     required
-    #department="ngModel"
-    placeholder="Department"
+    #position="ngModel"
+    placeholder="Position"
   />
 
-  @if (department.invalid && (department.touched || empForm.submitted)) {
+  @if (position.invalid && (position.touched || empForm.submitted)) {
     <div class="validation-error">
       Department is required
     </div>

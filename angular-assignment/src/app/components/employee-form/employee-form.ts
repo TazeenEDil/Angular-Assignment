@@ -17,20 +17,26 @@ import { Employee } from '../../models/employee.model';
 export class EmployeeForm {
 
   employee: Employee = {
-    id: 0,
     name: '',
     email: '',
-    department: ''
+    position: ''
   };
+position: any;
 
   constructor(
     private empService: EmployeeService,
     private router: Router
   ) {}
 
+
   addEmployee() {
-    this.employee.id = Date.now();
-    this.empService.addEmployee(this.employee);
-    this.router.navigate(['/']);
-  }
+  this.empService.addEmployee(this.employee).subscribe({
+    next: res => {
+      console.log(res);
+      this.router.navigate(['/']);
+    },
+    error: err => console.error(err)
+  });
 }
+}
+
