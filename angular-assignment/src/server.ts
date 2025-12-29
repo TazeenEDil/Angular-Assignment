@@ -13,18 +13,6 @@ const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 /**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
-
-/**
  * Serve static files from /browser
  */
 app.use(
@@ -34,6 +22,35 @@ app.use(
     redirect: false,
   }),
 );
+
+/**
+ * Remove strict CSP for development
+ */
+app.use((req, res, next) => {
+  const originalSetHeader = res.setHeader.bind(res);
+  
+  res.setHeader = function(name: string, value: any) {
+    // Intercept CSP header and modify it for development
+    if (name === 'Content-Security-Policy') {
+      const isDevelopment = process.env['NODE_ENV'] !== 'production';
+      
+      if (isDevelopment) {
+        // Set permissive CSP for development
+        return originalSetHeader.call(
+          this,
+          name,
+          "default-src 'self'; " +
+          "connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:*; " +
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+          "style-src 'self' 'unsafe-inline';"
+        );
+      }
+    }
+    return originalSetHeader.call(this, name, value);
+  };
+  
+  next();
+});
 
 /**
  * Handle all other requests by rendering the Angular application.

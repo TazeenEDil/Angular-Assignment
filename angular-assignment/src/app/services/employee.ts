@@ -8,7 +8,7 @@ import { Employee } from '../models/employee.model';
 })
 export class EmployeeService {
 
-  private apiUrl = 'https://localhost:5001/api/employees';
+  private apiUrl = 'http://localhost:5231/api/employees';
 
   constructor(private http: HttpClient) {}
 
@@ -37,3 +37,4 @@ export class EmployeeService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }
+

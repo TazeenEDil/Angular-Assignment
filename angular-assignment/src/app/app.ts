@@ -6,7 +6,7 @@ import { Header } from "./components/header/header";
   selector: 'app-root',
   imports: [RouterOutlet, Header],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css']
 })
 export class App {
   protected readonly title = signal('angular-assignment');
