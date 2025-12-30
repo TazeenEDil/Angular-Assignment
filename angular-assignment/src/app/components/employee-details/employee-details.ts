@@ -6,7 +6,6 @@ import { Employee } from '../../models/employee.model';
 
 @Component({
   selector: 'app-employee-details',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './employee-details.html',
   styleUrls: ['./employee-details.css']
