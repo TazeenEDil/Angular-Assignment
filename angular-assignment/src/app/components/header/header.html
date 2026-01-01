@@ -1,7 +1,11 @@
 <nav class="navbar">
-  <h2>Employee Management</h2>
-  <div class="nav-links">
-  <a routerLink="/">Employee List</a>
-  <a routerLink="/employee/add">Add Employees</a>
-  </div>
+  <h2>Employee Management System</h2>
+  
+  @if (isAuthenticated$ | async) {
+    <div class="nav-links">
+      <a routerLink="/">Employee List</a>
+      <a routerLink="/employee/add">Add Employees</a>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  }
 </nav>
