@@ -1,34 +1,44 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { EmployeeService } from '../../services/employee';
 import { Employee } from '../../models/employee.model';
+import { AuthService } from '../../services/auth/auth-service';
+import { Modal } from '../modal/modal';
 
 @Component({
   selector: 'app-employee-details',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, Modal],
   templateUrl: './employee-details.html',
   styleUrls: ['./employee-details.css']
 })
 export class EmployeeDetails implements OnInit {
+  private empService = inject(EmployeeService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
 
   employee: Employee | null = null;
   loading: boolean = false;
+  
+  // Modal properties
+  showModal = false;
+  modalTitle = '';
+  modalMessage = '';
 
-  constructor(
-    private empService: EmployeeService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
 
   ngOnInit() {
-    // Get employee ID from route params
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadEmployee(+id);
     } else {
-      alert('Invalid employee ID');
-      this.router.navigate(['/']);
+      this.modalTitle = 'Error';
+      this.modalMessage = 'Invalid employee ID';
+      this.showModal = true;
     }
   }
 
@@ -41,37 +51,35 @@ export class EmployeeDetails implements OnInit {
       },
       error: err => {
         console.error(err);
-        alert('Failed to load employee details');
         this.loading = false;
-        this.router.navigate(['/']);
+        this.modalTitle = 'Error';
+        this.modalMessage = 'Failed to load employee details';
+        this.showModal = true;
       }
     });
   }
 
-  editEmployee() {
-    if (this.employee && this.employee.id) {
-      this.router.navigate(['/employee/edit', this.employee.id]);
-    }
-  }
-
-  deleteEmployee() {
-    if (!this.employee || !this.employee.id) return;
-
-    if (confirm(`Are you sure you want to delete ${this.employee.name}?`)) {
-      this.empService.deleteEmployee(this.employee.id).subscribe({
-        next: () => {
-          alert('Employee deleted successfully!');
-          this.router.navigate(['/']);
-        },
-        error: err => {
-          console.error(err);
-          alert('Failed to delete employee. Please try again.');
-        }
-      });
+  closeModal() {
+    this.showModal = false;
+    if (!this.employee) {
+      this.router.navigate(['/']);
     }
   }
 
   goBack() {
     this.router.navigate(['/']);
+  }
+
+  editEmployee() {
+    if (!this.isAdmin) {
+      this.modalTitle = 'Access Denied';
+      this.modalMessage = 'Only administrators can edit employees.';
+      this.showModal = true;
+      return;
+    }
+    
+    if (this.employee && this.employee.id) {
+      this.router.navigate(['/employee/edit', this.employee.id]);
+    }
   }
 }

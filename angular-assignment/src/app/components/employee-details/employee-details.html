@@ -1,26 +1,61 @@
-<h2>Employee Details</h2>
+<div class="container">
+  <h2>Employee Details</h2>
 
-@if (employee) {
-  <div class="details-container">
-    <div class="detail-row">
-      <strong>ID:</strong>
-      <span>{{ employee.id }}</span>
+  @if (loading) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading employee details...</p>
     </div>
-    <div class="detail-row">
-      <strong>Name:</strong>
-      <span>{{ employee.name }}</span>
+  } @else if (employee) {
+    <div class="details-card">
+      <div class="detail-row">
+        <span class="label">ID:</span>
+        <span class="value">{{ employee.id }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Name:</span>
+        <span class="value">{{ employee.name }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Email:</span>
+        <span class="value">{{ employee.email }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Position:</span>
+        <span class="value">{{ employee.position }}</span>
+      </div>
+      @if (employee.createdAt) {
+        <div class="detail-row">
+          <span class="label">Created At:</span>
+          <span class="value">{{ employee.createdAt | date:'medium' }}</span>
+        </div>
+      }
+      
+      <div class="button-group">
+        <button class="btn btn-secondary" (click)="goBack()">
+          ← Back to List
+        </button>
+        
+        @if (isAdmin) {
+          <button class="btn btn-primary" (click)="editEmployee()">
+            ✏️ Edit Employee
+          </button>
+        }
+      </div>
     </div>
-    <div class="detail-row">
-      <strong>Email:</strong>
-      <span>{{ employee.email }}</span>
+  } @else {
+    <div class="not-found">
+      <span class="not-found-icon">❌</span>
+      <p>Employee not found!</p>
+      <button class="btn btn-secondary" (click)="goBack()">Back to List</button>
     </div>
-    <div class="detail-row">
-      <strong>Position:</strong>
-      <span>{{ employee.position }}</span>
-    </div>
-    <button (click)="goBack()">Back to List</button>
-  </div>
-} @else {
-  <p>Employee not found!</p>
-  <button (click)="goBack()">Back to List</button>
-}
+  }
+</div>
+
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [confirmText]="'OK'"
+  (close)="closeModal()">
+</app-modal>

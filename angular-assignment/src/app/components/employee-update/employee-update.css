@@ -1,125 +1,171 @@
-/* Form Container Styling */
-form {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 50px 60px;
-  border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+.container {
+  padding: 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+  min-height: calc(100vh - 80px);
 }
 
 h2 {
+  color: #333;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
   text-align: center;
-  color: #1e293b;
-  font-size: 32px;
-  font-weight: 600;
-  margin-bottom: 35px;
-  letter-spacing: 0.5px;
 }
 
-/* Input Field Styling */
-input {
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.employee-form {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #555;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.form-input {
   width: 100%;
-  padding: 16px 20px;
-  margin-top: 15px;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 16px;
+  padding: 0.9rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
   transition: all 0.3s ease;
-  background-color: #ffffff;
   box-sizing: border-box;
 }
 
-input:focus {
+.form-input:focus {
   outline: none;
-  border-color: #4facfe;
-  box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.1);
-  transform: translateY(-1px);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-input.ng-invalid.ng-touched {
-  border-color: #ef4444;
-  background-color: #fef2f2;
+.form-input:invalid:not(:placeholder-shown) {
+  border-color: #dc3545;
 }
 
-input.ng-valid.ng-touched {
-  border-color: #10b981;
-  background-color: #f0fdf4;
-}
-
-/* Validation Error Styling */
 .validation-error {
-  color: #ef4444;
-  font-size: 14px;
-  margin-top: 8px;
-  margin-left: 6px;
-  font-weight: 500;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.3rem;
 }
 
-.validation-error::before {
-  content: "⚠";
-  font-size: 16px;
-}
-
-/* Button Group Styling */
 .button-group {
   display: flex;
-  gap: 15px;
-  margin-top: 30px;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
-.button-group button {
+.btn {
   flex: 1;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  padding: 0.9rem 1.5rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-/* Submit Button (Update) */
-button[type="submit"] {
-  background: linear-gradient(135deg, #316491 0%, #2e2392 100%);
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(49, 100, 145, 0.3);
 }
 
-button[type="submit"]:hover:not(:disabled) {
+.btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(49, 100, 145, 0.4);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
-button[type="submit"]:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-button[type="submit"]:disabled {
-  background: linear-gradient(135deg, #5f7998 0%, #28446b 100%);
-  cursor: not-allowed;
+.btn-primary:disabled {
   opacity: 0.6;
-  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
 }
 
-/* Cancel Button */
-button[type="button"] {
-  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+.btn-secondary {
+  background-color: #6c757d;
   color: white;
-  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
 }
 
-button[type="button"]:hover {
-  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+.btn-secondary:hover:not(:disabled) {
+  background-color: #5a6268;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(71, 85, 105, 0.4);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
 }
 
-button[type="button"]:active {
-  transform: translateY(0);
+.spinner-small {
+  border: 2px solid #ffffff40;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.8s linear infinite;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .employee-form {
+    padding: 1.5rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
 }

@@ -1,40 +1,78 @@
-<h2>Employee List</h2>
+<div class="container">
+  <div class="header-section">
+    <h2>Employee List</h2>
+    <p class="employee-count">Total Employees: <strong>{{ employees.length }}</strong></p>
+  </div>
 
-<p>Total Employees: {{ employees.length }}</p>
+  @if (loading) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading employees...</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table class="employee-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Position</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-<table class="employee-table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Position</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
+        <tbody>
+          @for (emp of employees; track emp.id) {
+            <tr (click)="select(emp.id!)"
+                [ngClass]="{'selected': selectedId === emp.id}">
 
-  <tbody>
-    @for (emp of employees; track emp.id) {
-      <tr (click)="select(emp.id!)"
-          [ngClass]="{'selected': selectedId === emp.id}">
+              <td>{{ emp.name }}</td>
+              <td>{{ emp.email }}</td>
+              <td>{{ emp.position }}</td>
+              <td class="action-buttons">
+                <button class="btn btn-details"
+                        (click)="viewDetails(emp.id!); $event.stopPropagation()"
+                        title="View Details">
+                  <span class="icon">👁️</span> Details
+                </button>
+                
+                @if (isAdmin) {
+                  <button class="btn btn-update"
+                          (click)="updateEmployee(emp.id!); $event.stopPropagation()"
+                          title="Update Employee">
+                    <span class="icon">✏️</span> Update
+                  </button>
+                  <button class="btn btn-delete"
+                          (click)="deleteEmployee(emp.id!); $event.stopPropagation()"
+                          title="Delete Employee">
+                    <span class="icon">🗑️</span> Delete
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="no-data">
+                <div class="empty-state">
+                  <span class="empty-icon">📋</span>
+                  <p>No employees found</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
 
-        <td>{{ emp.name }}</td>
-        <td>{{ emp.email }}</td>
-        <td>{{ emp.position }}</td>
-        <td>
-          <button class="details-btn"
-                  (click)="viewDetails(emp.id!); $event.stopPropagation()">
-            Details
-          </button>
-          <button class="update-btn"
-                  (click)="updateEmployee(emp.id!); $event.stopPropagation()">
-            Update
-          </button>
-          <button class="delete-btn"
-                  (click)="deleteEmployee(emp.id!); $event.stopPropagation()">
-            Delete
-          </button>
-        </td>
-      </tr>
-    }
-  </tbody>
-</table>
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [showCancel]="showCancelButton"
+  [confirmText]="showCancelButton ? 'Delete' : 'OK'"
+  (confirm)="showCancelButton ? confirmDelete() : closeModal()"
+  (cancel)="closeModal()"
+  (close)="closeModal()">
+</app-modal>
