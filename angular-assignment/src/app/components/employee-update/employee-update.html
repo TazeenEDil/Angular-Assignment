@@ -1,60 +1,99 @@
-<h2>Update Employee</h2>
+<div class="container">
+  <h2>Update Employee</h2>
 
-<form #empForm="ngForm" (ngSubmit)="updateEmployee()">
-
-  <input
-    type="text"
-    name="name"
-    [(ngModel)]="employee.name"
-    required
-    #name="ngModel"
-    placeholder="Name"
-  />
-
-  @if (name.invalid && (name.touched || empForm.submitted)) {
-    <div class="validation-error">
-      Name is required
+  @if (loading && !employee.name) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading employee data...</p>
     </div>
+  } @else {
+    <form #empForm="ngForm" (ngSubmit)="updateEmployee()" class="employee-form">
+      <div class="form-group">
+        <label for="name">Full Name *</label>
+        <input
+          id="name"
+          type="text"
+          name="name"
+          [(ngModel)]="employee.name"
+          required
+          #name="ngModel"
+          placeholder="Enter employee name"
+          class="form-input"
+        />
+
+        @if (name.invalid && (name.touched || empForm.submitted)) {
+          <div class="validation-error">
+            ⚠️ Name is required
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          [(ngModel)]="employee.email"
+          required
+          email
+          #email="ngModel"
+          placeholder="Enter email address"
+          class="form-input"
+        />
+
+        @if (email.invalid && (email.touched || empForm.submitted)) {
+          <div class="validation-error">
+            @if (email.errors?.['required']) {
+              <span>⚠️ Email is required</span>
+            }
+            @if (email.errors?.['email']) {
+              <span>⚠️ Please enter a valid email address</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="position">Position *</label>
+        <input
+          id="position"
+          type="text"
+          name="position"
+          [(ngModel)]="employee.position"
+          required
+          #position="ngModel"
+          placeholder="Enter position"
+          class="form-input"
+        />
+
+        @if (position.invalid && (position.touched || empForm.submitted)) {
+          <div class="validation-error">
+            ⚠️ Position is required
+          </div>
+        }
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary" [disabled]="loading || empForm.invalid">
+          @if (loading) {
+            <span class="spinner-small"></span> Updating...
+          } @else {
+            ✓ Update Employee
+          }
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="loading">
+          ✕ Cancel
+        </button>
+      </div>
+    </form>
   }
+</div>
 
-  <input
-    type="email"
-    name="email"
-    [(ngModel)]="employee.email"
-    required
-    email
-    #email="ngModel"
-    placeholder="Email"
-  />
-
-  @if (email.invalid && (email.touched || empForm.submitted)) {
-    <div class="validation-error">
-      Please enter a valid email address
-    </div>
-  }
-
-  <input
-    type="text"
-    name="position"
-    [(ngModel)]="employee.position"
-    required
-    #position="ngModel"
-    placeholder="Position"
-  />
-
-  @if (position.invalid && (position.touched || empForm.submitted)) {
-    <div class="validation-error">
-      Position is required
-    </div>
-  }
-
-  <div class="button-group">
-    <button type="submit" [disabled]="empForm.invalid">
-      Update Employee
-    </button>
-    <button type="button" (click)="cancel()">
-      Cancel
-    </button>
-  </div>
-
-</form>
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [confirmText]="'OK'"
+  (close)="closeModal()">
+</app-modal>

@@ -1,7 +1,23 @@
 <nav class="navbar">
-  <h2>Employee Management</h2>
-  <div class="nav-links">
-  <a routerLink="/">Employee List</a>
-  <a routerLink="/employee/add">Add Employees</a>
-  </div>
+  <h2>Employee Management System</h2>
+  
+  @if (isAuthenticated$ | async) {
+    <div class="user-info">
+      <span class="welcome-text">Welcome, {{ userName }} ({{ (userRole$ | async) }})</span>
+    </div>
+    
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        Employee List
+      </a>
+      
+      @if (isAdmin) {
+        <a routerLink="/employee/add" routerLinkActive="active">
+          Add Employee
+        </a>
+      }
+      
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  }
 </nav>
