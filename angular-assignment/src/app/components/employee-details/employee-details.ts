@@ -70,16 +70,5 @@ export class EmployeeDetails implements OnInit {
     this.router.navigate(['/']);
   }
 
-  editEmployee() {
-    if (!this.isAdmin) {
-      this.modalTitle = 'Access Denied';
-      this.modalMessage = 'Only administrators can edit employees.';
-      this.showModal = true;
-      return;
-    }
-    
-    if (this.employee && this.employee.id) {
-      this.router.navigate(['/employee/edit', this.employee.id]);
-    }
+  
   }
-}

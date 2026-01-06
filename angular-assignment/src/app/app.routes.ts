@@ -5,7 +5,7 @@ import { EmployeeForm } from './components/employee-form/employee-form';
 import { EmployeeDetails } from './components/employee-details/employee-details';
 import { EmployeeUpdate } from './components/employee-update/employee-update';
 import { authGuard } from './guards/auth-guard';
-import { roleGuard } from './guards/role.guard';
+import { roleGuard } from './guards/role-guard';
 
 
 export const routes: Routes = [
