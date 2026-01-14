@@ -3,8 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { EmployeeService } from '../../services/employee';
-import { Employee } from '../../models/employee.model';
+import { PositionService } from '../../services/position-service';
 import { Modal } from '../modal/modal';
+
+interface Position {
+  positionId: number;
+  name: string;
+  description?: string;
+}
 
 @Component({
   selector: 'app-employee-update',
@@ -15,19 +21,20 @@ import { Modal } from '../modal/modal';
 })
 export class EmployeeUpdate implements OnInit {
   private empService = inject(EmployeeService);
+  private positionService = inject(PositionService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   employeeId: number = 0;
-  employee: Omit<Employee, 'id' | 'createdAt'> = {
+  employee: { name: string; email: string; positionId: number | string } = {
     name: '',
     email: '',
-    position: ''
+    positionId: ''
   };
-
+  
+  positions: Position[] = [];
   loading: boolean = false;
   
-  // Modal properties
   showModal = false;
   modalTitle = '';
   modalMessage = '';
@@ -36,6 +43,7 @@ export class EmployeeUpdate implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.employeeId = +id;
+      this.loadPositions();
       this.loadEmployee();
     } else {
       this.modalTitle = 'Error';
@@ -44,19 +52,30 @@ export class EmployeeUpdate implements OnInit {
     }
   }
 
+  loadPositions() {
+    this.positionService.getPositions().subscribe({
+      next: (data) => {
+        this.positions = data;
+      },
+      error: (err) => {
+        console.error('Failed to load positions:', err);
+      }
+    });
+  }
+
   loadEmployee() {
     this.loading = true;
     this.empService.getEmployeeById(this.employeeId).subscribe({
-      next: data => {
+      next: (data) => {
         this.employee = {
           name: data.name,
           email: data.email,
-          position: data.position
+          positionId: data.positionId
         };
         this.loading = false;
       },
-      error: err => {
-        console.error(err);
+      error: (err) => {
+        console.error('Failed to load employee:', err);
         this.loading = false;
         this.modalTitle = 'Error';
         this.modalMessage = 'Failed to load employee details';
@@ -66,7 +85,7 @@ export class EmployeeUpdate implements OnInit {
   }
 
   updateEmployee() {
-    if (!this.employee.name || !this.employee.email || !this.employee.position) {
+    if (!this.employee.name || !this.employee.email || !this.employee.positionId) {
       this.modalTitle = 'Validation Error';
       this.modalMessage = 'All fields are required!';
       this.showModal = true;
@@ -75,16 +94,22 @@ export class EmployeeUpdate implements OnInit {
 
     this.loading = true;
 
-    this.empService.updateEmployee(this.employeeId, this.employee).subscribe({
-      next: res => {
+    const updateData = {
+      name: this.employee.name,
+      email: this.employee.email,
+      positionId: Number(this.employee.positionId)
+    };
+
+    this.empService.updateEmployee(this.employeeId, updateData).subscribe({
+      next: (res) => {
         console.log('Employee updated:', res);
         this.loading = false;
         this.modalTitle = 'Success';
         this.modalMessage = 'Employee updated successfully!';
         this.showModal = true;
       },
-      error: err => {
-        console.error(err);
+      error: (err) => {
+        console.error('Failed to update employee:', err);
         this.loading = false;
         
         let errorMessage = 'Failed to update employee. Please try again.';
@@ -93,9 +118,6 @@ export class EmployeeUpdate implements OnInit {
           errorMessage = 'You do not have permission to update employees.';
         } else if (err.error && err.error.message) {
           errorMessage = err.error.message;
-        } else if (err.error && err.error.errors) {
-          const errors = Object.values(err.error.errors).flat();
-          errorMessage = errors.join(', ');
         }
         
         this.modalTitle = 'Error';
@@ -108,11 +130,11 @@ export class EmployeeUpdate implements OnInit {
   closeModal() {
     this.showModal = false;
     if (this.modalTitle === 'Success' || !this.employee.name) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/home']);
     }
   }
 
   cancel() {
-    this.router.navigate(['/']);
+    this.router.navigate(['/home']);
   }
 }

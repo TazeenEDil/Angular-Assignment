@@ -22,7 +22,6 @@ export class EmployeeList implements OnInit {
   selectedId: number | null = null;
   loading: boolean = false;
   
-  // Modal properties
   showModal = false;
   modalTitle = '';
   modalMessage = '';
@@ -43,9 +42,10 @@ export class EmployeeList implements OnInit {
       next: data => {
         this.employees = data;
         this.loading = false;
+        console.log('Employees loaded:', data.length);
       },
       error: err => {
-        console.error(err);
+        console.error('Failed to load employees:', err);
         this.showErrorModal('Failed to load employees. Please try again.');
         this.loading = false;
       }
@@ -87,16 +87,23 @@ export class EmployeeList implements OnInit {
   confirmDelete() {
     if (this.employeeToDelete === null) return;
 
-    this.empService.deleteEmployee(this.employeeToDelete).subscribe({
+    const idToDelete = this.employeeToDelete;
+    console.log('Deleting employee:', idToDelete);
+
+    this.empService.deleteEmployee(idToDelete).subscribe({
       next: () => {
-        this.employees = this.employees.filter(e => e.id !== this.employeeToDelete);
+        console.log('Employee deleted successfully');
+        // Update the list immediately by filtering out the deleted employee
+        this.employees = this.employees.filter(e => e.id !== idToDelete);
         this.selectedId = null;
         this.employeeToDelete = null;
+        this.showCancelButton = false;
         this.showSuccessModal('Employee deleted successfully!');
       },
       error: err => {
-        console.error(err);
+        console.error('Failed to delete employee:', err);
         this.employeeToDelete = null;
+        this.showCancelButton = false;
         
         if (err.status === 403) {
           this.showErrorModal('You do not have permission to delete employees.');
@@ -124,5 +131,6 @@ export class EmployeeList implements OnInit {
   closeModal() {
     this.showModal = false;
     this.employeeToDelete = null;
+    this.showCancelButton = false;
   }
 }

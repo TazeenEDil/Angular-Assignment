@@ -1,35 +1,28 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.app-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  color: #667eea;
 }
 
-body {
-  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  background-color: #f5f7fa;
-  color: #333;
-  line-height: 1.6;
+.app-loading .spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
 }
 
-html, body {
-  height: 100%;
-  overflow-x: hidden;
+.app-loading p {
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

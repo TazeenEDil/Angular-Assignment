@@ -1,23 +1,26 @@
-<nav class="navbar">
-  <h2>Employee Management System</h2>
-  
-  @if (isAuthenticated$ | async) {
-    <div class="user-info">
-      <span class="welcome-text">Welcome, {{ userName }} ({{ (userRole$ | async) }})</span>
-    </div>
-    
-    <div class="nav-links">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        Employee List
-      </a>
+@if (isLoggedIn) {
+  <header class="app-header">
+    <div class="header-container">
+      <div class="header-left">
+        <h1 class="app-title" (click)="navigateToHome()">Employee Management System</h1>
+      </div>
       
-      @if (isAdmin) {
-        <a routerLink="/employee/add" routerLinkActive="active">
-          Add Employee
-        </a>
-      }
-      
-      <button class="logout-btn" (click)="logout()">Logout</button>
+      <div class="header-right">
+        @if (isAdmin) {
+          <button class="btn btn-add" (click)="navigateToAdd()">
+            <span class="icon">➕</span> Add Employee
+          </button>
+        }
+        
+        <div class="user-info">
+          <span class="user-name">{{ userName }}</span>
+          <span class="user-role" [class.admin]="isAdmin">{{ userRole }}</span>
+        </div>
+        
+        <button class="btn btn-logout" (click)="logout()">
+          <span class="icon">🚪</span> Logout
+        </button>
+      </div>
     </div>
-  }
-</nav>
+  </header>
+}

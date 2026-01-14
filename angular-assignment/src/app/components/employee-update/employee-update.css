@@ -169,3 +169,22 @@ h2 {
     width: 100%;
   }
 }
+.form-select {
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-select option {
+  padding: 10px;
+}

@@ -1,0 +1,139 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2>Register as {{ role }}</h2>
+    <p class="subtitle">Create your account</p>
+
+    <form #registerForm="ngForm" (ngSubmit)="register()" class="register-form">
+      <div class="form-group">
+        <label for="name">Full Name *</label>
+        <input
+          id="name"
+          type="text"
+          name="name"
+          [(ngModel)]="name"
+          required
+          #nameInput="ngModel"
+          placeholder="Enter your full name"
+          class="form-input"
+        />
+        @if (nameInput.invalid && (nameInput.touched || registerForm.submitted)) {
+          <div class="validation-error">⚠️ Name is required</div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          required
+          email
+          #emailInput="ngModel"
+          placeholder="Enter your email"
+          class="form-input"
+        />
+        @if (emailInput.invalid && (emailInput.touched || registerForm.submitted)) {
+          <div class="validation-error">
+            @if (emailInput.errors?.['required']) {
+              <span>⚠️ Email is required</span>
+            }
+            @if (emailInput.errors?.['email']) {
+              <span>⚠️ Please enter a valid email</span>
+            }
+          </div>
+        }
+      </div>
+
+      @if (role === 'Employee') {
+        <div class="form-group">
+          <label for="position">Position *</label>
+          <select
+            id="position"
+            name="position"
+            [(ngModel)]="positionId"
+            required
+            #positionInput="ngModel"
+            class="form-select"
+          >
+            <option value="" disabled>Select a position</option>
+            @for (pos of positions; track pos.positionId) {
+              <option [value]="pos.positionId">{{ pos.name }}</option>
+            }
+          </select>
+          @if (positionInput.invalid && (positionInput.touched || registerForm.submitted)) {
+            <div class="validation-error">⚠️ Position is required</div>
+          }
+        </div>
+      }
+
+      <div class="form-group">
+        <label for="password">Password *</label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          required
+          minlength="6"
+          #passwordInput="ngModel"
+          placeholder="Enter password (min 6 characters)"
+          class="form-input"
+        />
+        @if (passwordInput.invalid && (passwordInput.touched || registerForm.submitted)) {
+          <div class="validation-error">
+            @if (passwordInput.errors?.['required']) {
+              <span>⚠️ Password is required</span>
+            }
+            @if (passwordInput.errors?.['minlength']) {
+              <span>⚠️ Password must be at least 6 characters</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password *</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          name="confirmPassword"
+          [(ngModel)]="confirmPassword"
+          required
+          #confirmPasswordInput="ngModel"
+          placeholder="Re-enter your password"
+          class="form-input"
+        />
+        @if (confirmPasswordInput.invalid && (confirmPasswordInput.touched || registerForm.submitted)) {
+          <div class="validation-error">⚠️ Please confirm your password</div>
+        }
+      </div>
+
+      <div class="role-display">
+        <strong>Role:</strong> {{ role }}
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        @if (loading) {
+          <span class="spinner-small"></span> Registering...
+        } @else {
+          Register as {{ role }}
+        }
+      </button>
+
+      <div class="login-link">
+        Already have an account? 
+        <a (click)="goToLogin()" class="link">Login here</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [confirmText]="'OK'"
+  (close)="closeModal()">
+</app-modal>

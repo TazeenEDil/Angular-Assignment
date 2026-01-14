@@ -18,7 +18,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private apiUrl = 'http://localhost:5231/api';
+  private apiUrl = 'http://localhost:5224/api';
   private tokenKey = 'jwt_token';
   private userRoleKey = 'user_role';
   private userEmailKey = 'user_email';
@@ -31,10 +31,14 @@ export class AuthService {
   public userRole$ = this.userRoleSubject.asObservable();
 
   constructor() {
-    if (this.isBrowser() && this.hasToken()) {
-      this.isAuthenticatedSubject.next(true);
-      const role = localStorage.getItem(this.userRoleKey) || '';
-      this.userRoleSubject.next(role);
+    if (this.isBrowser()) {
+      const token = this.getToken();
+      const role = this.getUserRole();
+      
+      if (token) {
+        this.isAuthenticatedSubject.next(true);
+        this.userRoleSubject.next(role);
+      }
     }
   }
 
@@ -43,7 +47,7 @@ export class AuthService {
       .post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
         tap(response => {
-          if (response.token) {
+          if (response && response.token) {
             this.setToken(response.token);
             this.setUserInfo(response.email, response.name, response.role);
             this.isAuthenticatedSubject.next(true);
@@ -51,6 +55,17 @@ export class AuthService {
           }
         })
       );
+  }
+
+  register(data: {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    role: string;
+    positionId?: number;
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/register`, data);
   }
 
   logout(): void {

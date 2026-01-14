@@ -1,29 +1,44 @@
 import { Component, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth-service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
 export class Header {
   private authService = inject(AuthService);
-  isAuthenticated$ = this.authService.isAuthenticated$;
-  userRole$ = this.authService.userRole$;
+  private router = inject(Router);
 
-  get userName(): string {
-    return this.authService.getUserName();
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
   }
 
   get isAdmin(): boolean {
     return this.authService.isAdmin();
   }
 
-  logout(): void {
+  get userName(): string {
+    return this.authService.getUserName();
+  }
+
+  get userRole(): string {
+    return this.authService.getUserRole();
+  }
+
+  logout() {
     this.authService.logout();
+  }
+
+  navigateToAdd() {
+    this.router.navigate(['/employee/add']);
+  }
+
+  navigateToHome() {
+    this.router.navigate(['/home']);
   }
 }

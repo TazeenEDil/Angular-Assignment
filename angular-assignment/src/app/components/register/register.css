@@ -1,42 +1,28 @@
-/* Ensure the Angular component itself takes full height */
-:host {
-  display: block;
+.register-container {
   min-height: 100vh;
-}
-
-/* MAIN CONTAINER */
-.login-container {
-  min-height: 100vh;
-  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
-  box-sizing: border-box;
 }
 
-/* CARD */
-.login-card {
+.register-card {
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   padding: 40px;
   width: 100%;
   max-width: 450px;
-  display: flex;
-  flex-direction: column;
 }
 
-/* HEADING */
-.login-card h2 {
+.register-card h2 {
   margin: 0 0 10px 0;
   color: #333;
   font-size: 28px;
   text-align: center;
 }
 
-/* SUBTITLE */
 .subtitle {
   text-align: center;
   color: #666;
@@ -44,20 +30,17 @@
   font-size: 14px;
 }
 
-/* FORM */
-.login-form {
+.register-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* FORM GROUP */
 .form-group {
   display: flex;
   flex-direction: column;
 }
 
-/* LABEL */
 .form-group label {
   margin-bottom: 8px;
   color: #333;
@@ -65,7 +48,6 @@
   font-size: 14px;
 }
 
-/* INPUT */
 .form-input {
   padding: 12px 15px;
   border: 2px solid #e0e0e0;
@@ -80,7 +62,6 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* VALIDATION ERROR */
 .validation-error {
   color: #e74c3c;
   font-size: 12px;
@@ -90,7 +71,15 @@
   gap: 5px;
 }
 
-/* BUTTON BASE */
+.role-display {
+  background: #f0f0f0;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+}
+
 .btn {
   padding: 14px;
   border: none;
@@ -105,7 +94,6 @@
   gap: 10px;
 }
 
-/* PRIMARY BUTTON */
 .btn-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -121,7 +109,6 @@
   cursor: not-allowed;
 }
 
-/* LOADING SPINNER */
 .spinner-small {
   width: 16px;
   height: 16px;
@@ -132,76 +119,22 @@
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-/* DIVIDER */
-.divider {
-  margin: 30px 0;
+.login-link {
   text-align: center;
-  position: relative;
-}
-
-.divider::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  height: 1px;
-  background: #e0e0e0;
-}
-
-.divider span {
-  background: white;
-  padding: 0 15px;
-  position: relative;
-  color: #999;
   font-size: 14px;
-}
-
-/* REGISTER SECTION */
-.register-section {
-  text-align: center;
-}
-
-.register-text {
   color: #666;
-  margin-bottom: 15px;
-  font-size: 14px;
 }
 
-.register-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-/* ADMIN BUTTON */
-.btn-admin {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-}
-
-.btn-admin:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
-}
-
-/* EMPLOYEE BUTTON */
-.btn-employee {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: white;
-}
-
-.btn-employee:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-}
-
-/* ICON */
-.icon {
-  font-size: 18px;
+.link:hover {
+  text-decoration: underline;
 }

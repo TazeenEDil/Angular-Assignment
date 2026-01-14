@@ -56,16 +56,19 @@
 
       <div class="form-group">
         <label for="position">Position *</label>
-        <input
+        <select
           id="position"
-          type="text"
           name="position"
-          [(ngModel)]="employee.position"
+          [(ngModel)]="employee.positionId"
           required
           #position="ngModel"
-          placeholder="Enter position"
-          class="form-input"
-        />
+          class="form-select"
+        >
+          <option value="" disabled>Select a position</option>
+          @for (pos of positions; track pos.positionId) {
+            <option [value]="pos.positionId">{{ pos.name }}</option>
+          }
+        </select>
 
         @if (position.invalid && (position.touched || empForm.submitted)) {
           <div class="validation-error">

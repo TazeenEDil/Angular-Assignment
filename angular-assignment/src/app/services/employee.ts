@@ -7,34 +7,27 @@ import { Employee } from '../models/employee.model';
   providedIn: 'root'
 })
 export class EmployeeService {
-
-  private apiUrl = 'http://localhost:5231/api/employees';
+  private apiUrl = 'http://localhost:5224/api/employees';
 
   constructor(private http: HttpClient) {}
 
-  // GET ALL Employees
   getEmployees(): Observable<Employee[]> {
     return this.http.get<Employee[]>(this.apiUrl);
   }
 
-  // GET Single Employee by ID
   getEmployeeById(id: number): Observable<Employee> {
     return this.http.get<Employee>(`${this.apiUrl}/${id}`);
   }
 
-  // CREATE Employee
-  addEmployee(emp: Omit<Employee, 'id' | 'createdAt'>): Observable<Employee> {
+  addEmployee(emp: { name: string; email: string; positionId: number }): Observable<Employee> {
     return this.http.post<Employee>(this.apiUrl, emp);
   }
 
-  // UPDATE Employee
-  updateEmployee(id: number, emp: Omit<Employee, 'id' | 'createdAt'>): Observable<Employee> {
+  updateEmployee(id: number, emp: { name: string; email: string; positionId: number }): Observable<Employee> {
     return this.http.put<Employee>(`${this.apiUrl}/${id}`, emp);
   }
 
-  // DELETE Employee
   deleteEmployee(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }
-
