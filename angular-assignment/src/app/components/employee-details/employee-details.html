@@ -22,7 +22,7 @@
       </div>
       <div class="detail-row">
         <span class="label">Position:</span>
-        <span class="value">{{ employee.position }}</span>
+        <span class="value">{{ employee.positionName || 'Unknown' }}</span>
       </div>
       @if (employee.createdAt) {
         <div class="detail-row">
@@ -35,8 +35,6 @@
         <button class="btn btn-secondary" (click)="goBack()">
           ← Back to List
         </button>
-        
-        
       </div>
     </div>
   } @else {

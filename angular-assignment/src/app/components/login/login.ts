@@ -1,79 +1,86 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth-service';
 import { Modal } from '../modal/modal';
 
+interface LoginResponse {
+  token: string;
+  email: string;
+  name: string;
+  role: string;
+  expiresAt: Date;
+}
+
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, Modal],
+  imports: [FormsModule, CommonModule, Modal],
   templateUrl: './login.html',
-  styleUrls: ['./login.css'],
+  styleUrls: ['./login.css']
 })
-export class Login implements OnInit {
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
+export class Login {
   private authService = inject(AuthService);
+  private router = inject(Router);
 
-  loginForm!: FormGroup;
-  submitted = false;
-  loginError = '';
+  email: string = '';
+  password: string = '';
+  loading: boolean = false;
+  
   showModal = false;
-  isLoading = false;
+  modalTitle = '';
+  modalMessage = '';
 
-  ngOnInit(): void {
-    // Redirect if already logged in
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/']);
+  login() {
+    if (!this.email || !this.password) {
+      this.showErrorModal('Please enter both email and password');
       return;
     }
 
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-    });
-  }
+    this.loading = true;
 
-  get f() {
-    return this.loginForm.controls;
-  }
-
-  onSubmit(): void {
-    this.submitted = true;
-
-    if (this.loginForm.invalid) {
-      return;
-    }
-
-    const { email, password } = this.loginForm.value;
-    this.isLoading = true;
-
-    this.authService.login(email, password).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.router.navigate(['/']);
+    this.authService.login(this.email, this.password).subscribe({
+      next: (res: LoginResponse) => {
+        this.loading = false;
+        this.router.navigate(['/home'], { replaceUrl: true });
       },
       error: (err) => {
-        this.isLoading = false;
         console.error('Login error:', err);
+        this.loading = false;
         
-        if (err.error && err.error.message) {
-          this.loginError = err.error.message;
+        let errorMessage = 'Login failed. Please check your credentials.';
+        
+        if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please ensure the backend is running at http://localhost:5224';
         } else if (err.status === 401) {
-          this.loginError = 'Invalid email or password';
-        } else {
-          this.loginError = 'Login failed. Please try again.';
+          errorMessage = 'Invalid email or password.';
+        } else if (err.status === 404) {
+          errorMessage = 'Login endpoint not found. Please check the API URL.';
+        } else if (err.error && err.error.message) {
+          errorMessage = err.error.message;
         }
         
-        this.showModal = true;
-      },
+        this.showErrorModal(errorMessage);
+      }
     });
   }
 
-  closeModal(): void {
+  registerAsAdmin() {
+    this.router.navigate(['/register', 'admin']);
+  }
+
+  registerAsEmployee() {
+    this.router.navigate(['/register', 'employee']);
+  }
+
+  showErrorModal(message: string) {
+    this.modalTitle = 'Error';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
+  closeModal() {
     this.showModal = false;
-    this.loginError = '';
   }
 }

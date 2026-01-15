@@ -28,7 +28,7 @@
 
               <td>{{ emp.name }}</td>
               <td>{{ emp.email }}</td>
-              <td>{{ emp.position }}</td>
+              <td>{{ emp.positionName || 'Unknown' }}</td>
               <td class="action-buttons">
                 <button class="btn btn-details"
                         (click)="viewDetails(emp.id!); $event.stopPropagation()"

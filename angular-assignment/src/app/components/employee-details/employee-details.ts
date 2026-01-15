@@ -22,7 +22,6 @@ export class EmployeeDetails implements OnInit {
   employee: Employee | null = null;
   loading: boolean = false;
   
-  // Modal properties
   showModal = false;
   modalTitle = '';
   modalMessage = '';
@@ -50,7 +49,7 @@ export class EmployeeDetails implements OnInit {
         this.loading = false;
       },
       error: err => {
-        console.error(err);
+        console.error('Failed to load employee:', err);
         this.loading = false;
         this.modalTitle = 'Error';
         this.modalMessage = 'Failed to load employee details';
@@ -62,13 +61,11 @@ export class EmployeeDetails implements OnInit {
   closeModal() {
     this.showModal = false;
     if (!this.employee) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/home']);
     }
   }
 
   goBack() {
-    this.router.navigate(['/']);
+    this.router.navigate(['/home']);
   }
-
-  
-  }
+}

@@ -18,11 +18,14 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private apiUrl = 'http://localhost:5231/api';
+  private apiUrl = 'http://localhost:5224/api';
   private tokenKey = 'jwt_token';
   private userRoleKey = 'user_role';
   private userEmailKey = 'user_email';
   private userNameKey = 'user_name';
+
+  /** 🔥 NEW: auth initialization flag */
+  private authReady = false;
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -31,11 +34,23 @@ export class AuthService {
   public userRole$ = this.userRoleSubject.asObservable();
 
   constructor() {
-    if (this.isBrowser() && this.hasToken()) {
-      this.isAuthenticatedSubject.next(true);
-      const role = localStorage.getItem(this.userRoleKey) || '';
-      this.userRoleSubject.next(role);
+    if (this.isBrowser()) {
+      const token = this.getToken();
+      const role = this.getUserRole();
+
+      if (token) {
+        this.isAuthenticatedSubject.next(true);
+        this.userRoleSubject.next(role);
+      }
     }
+
+    /** 🔥 VERY IMPORTANT */
+    this.authReady = true;
+  }
+
+  /** Guards will wait for this */
+  isAuthReady(): boolean {
+    return this.authReady;
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
@@ -43,7 +58,7 @@ export class AuthService {
       .post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
         tap(response => {
-          if (response.token) {
+          if (response && response.token) {
             this.setToken(response.token);
             this.setUserInfo(response.email, response.name, response.role);
             this.isAuthenticatedSubject.next(true);
@@ -53,6 +68,17 @@ export class AuthService {
       );
   }
 
+  register(data: {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    role: string;
+    positionId?: number;
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/register`, data);
+  }
+
   logout(): void {
     if (this.isBrowser()) {
       localStorage.removeItem(this.tokenKey);
@@ -60,9 +86,11 @@ export class AuthService {
       localStorage.removeItem(this.userEmailKey);
       localStorage.removeItem(this.userNameKey);
     }
+
     this.isAuthenticatedSubject.next(false);
     this.userRoleSubject.next('');
-    this.router.navigate(['/login']);
+
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   getToken(): string | null {
@@ -93,6 +121,10 @@ export class AuthService {
     return this.getUserRole() === 'Employee';
   }
 
+  isLoggedIn(): boolean {
+    return this.isAuthenticatedSubject.value;
+  }
+
   private setToken(token: string): void {
     if (!this.isBrowser()) return;
     localStorage.setItem(this.tokenKey, token);
@@ -103,14 +135,6 @@ export class AuthService {
     localStorage.setItem(this.userEmailKey, email);
     localStorage.setItem(this.userNameKey, name);
     localStorage.setItem(this.userRoleKey, role);
-  }
-
-  private hasToken(): boolean {
-    return !!this.getToken();
-  }
-
-  isLoggedIn(): boolean {
-    return this.hasToken();
   }
 
   private isBrowser(): boolean {

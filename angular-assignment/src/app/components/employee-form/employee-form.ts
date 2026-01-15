@@ -1,10 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { EmployeeService } from '../../services/employee';
-import { Employee } from '../../models/employee.model';
+import { PositionService } from '../../services/position-service';
 import { Modal } from '../modal/modal';
+
+interface Position {
+  positionId: number;
+  name: string;
+  description?: string;
+}
 
 @Component({
   selector: 'app-employee-form',
@@ -13,25 +19,42 @@ import { Modal } from '../modal/modal';
   templateUrl: './employee-form.html',
   styleUrls: ['./employee-form.css']
 })
-export class EmployeeForm {
+export class EmployeeForm implements OnInit {
   private empService = inject(EmployeeService);
+  private positionService = inject(PositionService);
   private router = inject(Router);
 
-  employee: Omit<Employee, 'id' | 'createdAt'> = {
+  employee = {
     name: '',
     email: '',
-    position: ''
+    positionId: '' as number | string
   };
 
+  positions: Position[] = [];
   loading: boolean = false;
   
-  // Modal properties
   showModal = false;
   modalTitle = '';
   modalMessage = '';
 
+  ngOnInit() {
+    this.loadPositions();
+  }
+
+  loadPositions() {
+    this.positionService.getPositions().subscribe({
+      next: (data) => {
+        this.positions = data;
+      },
+      error: (err) => {
+        console.error('Failed to load positions:', err);
+        this.showErrorModal('Failed to load positions. Please try again.');
+      }
+    });
+  }
+
   addEmployee() {
-    if (!this.employee.name || !this.employee.email || !this.employee.position) {
+    if (!this.employee.name || !this.employee.email || !this.employee.positionId) {
       this.modalTitle = 'Validation Error';
       this.modalMessage = 'All fields are required!';
       this.showModal = true;
@@ -40,7 +63,13 @@ export class EmployeeForm {
 
     this.loading = true;
 
-    this.empService.addEmployee(this.employee).subscribe({
+    const employeeData = {
+      name: this.employee.name,
+      email: this.employee.email,
+      positionId: Number(this.employee.positionId)
+    };
+
+    this.empService.addEmployee(employeeData).subscribe({
       next: res => {
         console.log('Employee created:', res);
         this.loading = false;
@@ -49,7 +78,7 @@ export class EmployeeForm {
         this.showModal = true;
       },
       error: err => {
-        console.error(err);
+        console.error('Failed to add employee:', err);
         this.loading = false;
         
         let errorMessage = 'Failed to add employee. Please try again.';
@@ -70,20 +99,20 @@ export class EmployeeForm {
     });
   }
 
+  showErrorModal(message: string) {
+    this.modalTitle = 'Error';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
   closeModal() {
     this.showModal = false;
     if (this.modalTitle === 'Success') {
-      this.router.navigate(['/']);
+      this.router.navigate(['/home']);
     }
   }
 
   cancel() {
-    this.router.navigate(['/']);
+    this.router.navigate(['/home']);
   }
 }
-
-
-
-
-
-
