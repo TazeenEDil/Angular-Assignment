@@ -1,32 +1,46 @@
 .container {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  min-height: calc(100vh - 80px);
+  margin-left: 270px;
+  padding: 30px;
+  max-width: calc(100vw - 300px);
 }
 
 .header-section {
-  margin-bottom: 2rem;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e0e0e0;
 }
 
 .header-section h2 {
   color: #333;
-  margin: 0 0 0.5rem 0;
-  font-size: 1.8rem;
-}
-
-.employee-count {
-  color: #666;
+  font-size: 28px;
   margin: 0;
-  font-size: 1.1rem;
 }
 
-.employee-count strong {
-  color: #667eea;
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-add {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
 .loading-spinner {
@@ -34,10 +48,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 60px 20px;
 }
 
 .spinner {
@@ -47,7 +58,6 @@
   width: 50px;
   height: 50px;
   animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
 }
 
 @keyframes spin {
@@ -55,16 +65,12 @@
   100% { transform: rotate(360deg); }
 }
 
-.loading-spinner p {
-  color: #666;
-  font-size: 1.1rem;
-}
-
 .table-container {
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .employee-table {
@@ -78,136 +84,169 @@
 }
 
 .employee-table th {
-  padding: 1.2rem;
+  padding: 16px;
   text-align: left;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .employee-table tbody tr {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .employee-table tbody tr:hover {
-  background-color: #f8f9fa;
-  transform: scale(1.01);
+  background-color: #f8f9ff;
 }
 
 .employee-table tbody tr.selected {
-  background-color: #e7f3ff;
+  background-color: #e8ebff;
 }
 
 .employee-table td {
-  padding: 1.2rem;
+  padding: 16px;
   color: #333;
+  font-size: 14px;
 }
 
 .action-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.btn {
-  padding: 0.5rem 1rem;
+.btn-details, .btn-update, .btn-delete {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  white-space: nowrap;
-}
-
-.btn .icon {
-  font-size: 1rem;
+  gap: 4px;
 }
 
 .btn-details {
-  background-color: #17a2b8;
+  background-color: #4CAF50;
   color: white;
 }
 
 .btn-details:hover {
-  background-color: #138496;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+  background-color: #45a049;
+  transform: translateY(-1px);
 }
 
 .btn-update {
-  background-color: #28a745;
+  background-color: #2196F3;
   color: white;
 }
 
 .btn-update:hover {
-  background-color: #218838;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+  background-color: #0b7dda;
+  transform: translateY(-1px);
 }
 
 .btn-delete {
-  background-color: #dc3545;
+  background-color: #f44336;
   color: white;
 }
 
 .btn-delete:hover {
-  background-color: #c82333;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+  background-color: #da190b;
+  transform: translateY(-1px);
 }
 
 .no-data {
   text-align: center;
-  padding: 3rem;
+  padding: 60px 20px !important;
 }
 
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 15px;
+  color: #999;
 }
 
 .empty-icon {
-  font-size: 4rem;
-  opacity: 0.5;
+  font-size: 48px;
 }
 
 .empty-state p {
-  color: #999;
-  font-size: 1.2rem;
+  font-size: 16px;
   margin: 0;
 }
 
-@media (max-width: 1024px) {
-  .container {
-    padding: 1rem;
-  }
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+}
 
-  .employee-table th,
-  .employee-table td {
-    padding: 0.8rem;
-    font-size: 0.9rem;
-  }
+.pagination-btn {
+  padding: 8px 16px;
+  border: 2px solid #667eea;
+  background: white;
+  color: #667eea;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
 
-  .btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-  }
+.pagination-btn:hover:not(:disabled) {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.pagination-btn:disabled {
+  border-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination-btn.page-number {
+  min-width: 40px;
+  padding: 8px 12px;
+}
+
+.pagination-btn.active {
+  background: #667eea;
+  color: white;
+}
+
+.pagination-info {
+  margin-left: 15px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
-  .header-section h2 {
-    font-size: 1.5rem;
+  .container {
+    margin-left: 0;
+    padding: 20px;
+    max-width: 100%;
   }
 
-  .employee-count {
-    font-size: 1rem;
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
   }
 
   .table-container {
@@ -215,15 +254,22 @@
   }
 
   .employee-table {
-    min-width: 700px;
+    min-width: 600px;
   }
 
-  .action-buttons {
-    flex-direction: column;
+  .pagination {
+    gap: 5px;
+    padding: 15px;
   }
 
-  .btn {
+  .pagination-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .pagination-info {
     width: 100%;
-    justify-content: center;
+    text-align: center;
+    margin: 10px 0 0 0;
   }
 }

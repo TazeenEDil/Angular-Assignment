@@ -19,8 +19,14 @@ export class EmployeeList implements OnInit {
   private authService = inject(AuthService);
 
   employees: Employee[] = [];
+  paginatedEmployees: Employee[] = [];
   selectedId: number | null = null;
   loading: boolean = false;
+  
+  // Pagination properties
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 0;
   
   showModal = false;
   modalTitle = '';
@@ -41,6 +47,8 @@ export class EmployeeList implements OnInit {
     this.empService.getEmployees().subscribe({
       next: data => {
         this.employees = data;
+        this.totalPages = Math.ceil(this.employees.length / this.pageSize);
+        this.updatePaginatedEmployees();
         this.loading = false;
         console.log('Employees loaded:', data.length);
       },
@@ -50,6 +58,51 @@ export class EmployeeList implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  updatePaginatedEmployees() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedEmployees = this.employees.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePaginatedEmployees();
+    this.selectedId = null;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.goToPage(this.currentPage + 1);
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.goToPage(this.currentPage - 1);
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    
+    if (this.totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
   }
 
   select(id: number) {
@@ -93,8 +146,15 @@ export class EmployeeList implements OnInit {
     this.empService.deleteEmployee(idToDelete).subscribe({
       next: () => {
         console.log('Employee deleted successfully');
-        // Update the list immediately by filtering out the deleted employee
         this.employees = this.employees.filter(e => e.id !== idToDelete);
+        this.totalPages = Math.ceil(this.employees.length / this.pageSize);
+        
+        // Adjust current page if necessary
+        if (this.currentPage > this.totalPages && this.totalPages > 0) {
+          this.currentPage = this.totalPages;
+        }
+        
+        this.updatePaginatedEmployees();
         this.selectedId = null;
         this.employeeToDelete = null;
         this.showCancelButton = false;
@@ -112,6 +172,10 @@ export class EmployeeList implements OnInit {
         }
       }
     });
+  }
+
+  navigateToAdd() {
+    this.router.navigate(['/employee/add']);
   }
 
   showSuccessModal(message: string) {

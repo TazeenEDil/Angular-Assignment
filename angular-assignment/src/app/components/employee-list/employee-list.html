@@ -1,7 +1,11 @@
 <div class="container">
   <div class="header-section">
     <h2>Employee List</h2>
-    <p class="employee-count">Total Employees: <strong>{{ employees.length }}</strong></p>
+    @if (isAdmin) {
+      <button class="btn btn-add" (click)="navigateToAdd()">
+        <span class="icon">➕</span> Add Employee
+      </button>
+    }
   </div>
 
   @if (loading) {
@@ -22,7 +26,7 @@
         </thead>
 
         <tbody>
-          @for (emp of employees; track emp.id) {
+          @for (emp of paginatedEmployees; track emp.id) {
             <tr (click)="select(emp.id!)"
                 [ngClass]="{'selected': selectedId === emp.id}">
 
@@ -63,6 +67,34 @@
         </tbody>
       </table>
     </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="pagination-btn" 
+                (click)="previousPage()" 
+                [disabled]="currentPage === 1">
+          ← Previous
+        </button>
+
+        @for (page of getPageNumbers(); track page) {
+          <button class="pagination-btn page-number" 
+                  [class.active]="currentPage === page"
+                  (click)="goToPage(page)">
+            {{ page }}
+          </button>
+        }
+
+        <button class="pagination-btn" 
+                (click)="nextPage()" 
+                [disabled]="currentPage === totalPages">
+          Next →
+        </button>
+
+        <span class="pagination-info">
+          Page {{ currentPage }} of {{ totalPages }} | Total: {{ employees.length }} employees
+        </span>
+      </div>
+    }
   }
 </div>
 

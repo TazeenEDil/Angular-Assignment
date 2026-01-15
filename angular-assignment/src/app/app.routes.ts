@@ -11,10 +11,51 @@ import { roleGuard } from './guards/role-guard';
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'register/:role', component: RegisterComponent },
-  { path: 'home', component: EmployeeList, canActivate: [authGuard] },
-  { path: 'employee/add', component: EmployeeForm, canActivate: [authGuard, roleGuard], data: { role: 'Admin' } },
-  { path: 'employee/edit/:id', component: EmployeeUpdate, canActivate: [authGuard, roleGuard], data: { role: 'Admin' } },
-  { path: 'employee/:id', component: EmployeeDetails, canActivate: [authGuard] },
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: '**', redirectTo: 'home' }
+  
+  // Redirect home to employees
+  { path: 'home', redirectTo: 'employees', pathMatch: 'full' },
+  
+  // Main employee routes
+  { 
+    path: 'employees', 
+    component: EmployeeList, 
+    canActivate: [authGuard] 
+  },
+  { 
+    path: 'employee/add', 
+    component: EmployeeForm, 
+    canActivate: [authGuard, roleGuard], 
+    data: { role: 'Admin' } 
+  },
+  { 
+    path: 'employee/edit/:id', 
+    component: EmployeeUpdate, 
+    canActivate: [authGuard, roleGuard], 
+    data: { role: 'Admin' } 
+  },
+  { 
+    path: 'employee/:id', 
+    component: EmployeeDetails, 
+    canActivate: [authGuard] 
+  },
+  
+  // Designation routes
+  { 
+    path: 'designation', 
+    loadComponent: () => import('./components/designation-list/designation-list')
+      .then(m => m.DesignationList),
+    canActivate: [authGuard]
+  },
+  
+  // File Storage routes
+  { 
+    path: 'file-storage', 
+    loadComponent: () => import('./components/file-storage/file-storage')
+      .then(m => m.FileStorage),
+    canActivate: [authGuard]
+  },
+  
+  // Default routes
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '**', redirectTo: 'login' }
 ];
