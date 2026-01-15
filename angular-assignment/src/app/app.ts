@@ -6,9 +6,12 @@ import { Header } from './components/header/header';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, Header],
-  templateUrl: './app.html',
+  template: `
+    <app-header></app-header>
+    <router-outlet></router-outlet>
+  `,
   styleUrls: ['./app.css']
 })
-export class App{
+export class App {
   title = 'Employee Management System';
 }

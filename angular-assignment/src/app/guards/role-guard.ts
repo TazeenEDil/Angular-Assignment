@@ -5,15 +5,18 @@ import { AuthService } from '../services/auth/auth-service';
 export const roleGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  
+
   const requiredRole = route.data['role'] as string;
 
   console.log('Role Guard - Required Role:', requiredRole);
   console.log('Role Guard - User Role:', authService.getUserRole());
 
+  if (!authService.isAuthReady()) {
+    return false;
+  }
+
   if (!authService.isLoggedIn()) {
-    console.log('Role Guard - Not logged in, redirecting to login');
-    router.navigate(['/login']);
+    router.navigate(['/login'], { replaceUrl: true });
     return false;
   }
 
@@ -24,8 +27,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Redirect to employee list if no permission
   console.log('Role Guard - Access denied, redirecting to home');
-  router.navigate(['/home']);
+  router.navigate(['/home'], { replaceUrl: true });
   return false;
 };

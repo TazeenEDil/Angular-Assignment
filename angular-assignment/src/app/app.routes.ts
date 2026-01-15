@@ -7,11 +7,10 @@ import { EmployeeDetails } from './components/employee-details/employee-details'
 import { EmployeeUpdate } from './components/employee-update/employee-update';
 import { authGuard } from './guards/auth-guard';
 import { roleGuard } from './guards/role-guard';
-import { noAuthGuard } from './guards/no-auth-guard';
 
 export const routes: Routes = [
-  { path: 'login', component: Login, canActivate: [noAuthGuard] },
-  { path: 'register/:role', component: RegisterComponent, canActivate: [noAuthGuard] },
+  { path: 'login', component: Login },
+  { path: 'register/:role', component: RegisterComponent },
   { path: 'home', component: EmployeeList, canActivate: [authGuard] },
   { path: 'employee/add', component: EmployeeForm, canActivate: [authGuard, roleGuard], data: { role: 'Admin' } },
   { path: 'employee/edit/:id', component: EmployeeUpdate, canActivate: [authGuard, roleGuard], data: { role: 'Admin' } },

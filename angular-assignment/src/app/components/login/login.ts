@@ -33,38 +33,20 @@ export class Login {
   modalMessage = '';
 
   login() {
-    console.log('Login Component - Login method called');
-    
     if (!this.email || !this.password) {
       this.showErrorModal('Please enter both email and password');
       return;
     }
 
     this.loading = true;
-    console.log('Login Component - Calling auth service login');
 
     this.authService.login(this.email, this.password).subscribe({
       next: (res: LoginResponse) => {
-        console.log('Login Component - Login successful');
-        console.log('Login Component - Response:', res);
-        console.log('Login Component - Role from response:', res.role);
-        
         this.loading = false;
-        
-        // Double check localStorage after login
-        setTimeout(() => {
-          console.log('Login Component - Checking localStorage after login:');
-          console.log('  Token:', localStorage.getItem('jwt_token'));
-          console.log('  Role:', localStorage.getItem('user_role'));
-          console.log('  Name:', localStorage.getItem('user_name'));
-          console.log('  Email:', localStorage.getItem('user_email'));
-          
-          console.log('Login Component - Navigating to /home');
-          this.router.navigate(['/home'], { replaceUrl: true });
-        }, 100);
+        this.router.navigate(['/home'], { replaceUrl: true });
       },
       error: (err) => {
-        console.error('Login Component - Login error:', err);
+        console.error('Login error:', err);
         this.loading = false;
         
         let errorMessage = 'Login failed. Please check your credentials.';

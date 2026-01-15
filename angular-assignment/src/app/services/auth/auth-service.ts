@@ -24,6 +24,9 @@ export class AuthService {
   private userEmailKey = 'user_email';
   private userNameKey = 'user_name';
 
+  /** 🔥 NEW: auth initialization flag */
+  private authReady = false;
+
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
@@ -34,12 +37,20 @@ export class AuthService {
     if (this.isBrowser()) {
       const token = this.getToken();
       const role = this.getUserRole();
-      
+
       if (token) {
         this.isAuthenticatedSubject.next(true);
         this.userRoleSubject.next(role);
       }
     }
+
+    /** 🔥 VERY IMPORTANT */
+    this.authReady = true;
+  }
+
+  /** Guards will wait for this */
+  isAuthReady(): boolean {
+    return this.authReady;
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
@@ -75,9 +86,11 @@ export class AuthService {
       localStorage.removeItem(this.userEmailKey);
       localStorage.removeItem(this.userNameKey);
     }
+
     this.isAuthenticatedSubject.next(false);
     this.userRoleSubject.next('');
-    this.router.navigate(['/login']);
+
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   getToken(): string | null {
@@ -108,6 +121,10 @@ export class AuthService {
     return this.getUserRole() === 'Employee';
   }
 
+  isLoggedIn(): boolean {
+    return this.isAuthenticatedSubject.value;
+  }
+
   private setToken(token: string): void {
     if (!this.isBrowser()) return;
     localStorage.setItem(this.tokenKey, token);
@@ -118,14 +135,6 @@ export class AuthService {
     localStorage.setItem(this.userEmailKey, email);
     localStorage.setItem(this.userNameKey, name);
     localStorage.setItem(this.userRoleKey, role);
-  }
-
-  private hasToken(): boolean {
-    return !!this.getToken();
-  }
-
-  isLoggedIn(): boolean {
-    return this.hasToken();
   }
 
   private isBrowser(): boolean {
