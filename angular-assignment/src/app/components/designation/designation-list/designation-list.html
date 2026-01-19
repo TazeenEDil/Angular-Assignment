@@ -1,0 +1,113 @@
+<div class="container">
+  <div class="header-section">
+    <h2>Designation Management</h2>
+    @if (isAdmin) {
+      <button class="btn btn-add" (click)="navigateToAdd()">
+        <span class="icon">➕</span> Add Position
+      </button>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading positions...</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table class="position-table">
+        <thead>
+          <tr>
+            <th>Position Name</th>
+            <th>Description</th>
+            <th>Employees</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (position of paginatedPositions; track position.positionId) {
+            <tr (click)="select(position.positionId)"
+                [ngClass]="{'selected': selectedId === position.positionId}">
+
+              <td>{{ position.name }}</td>
+              <td>{{ position.description || 'No description' }}</td>
+              <td>
+                <span class="employee-badge">{{ position.employeeCount }}</span>
+              </td>
+              <td class="action-buttons">
+                <button class="btn btn-details"
+                        (click)="viewDetails(position.positionId); $event.stopPropagation()"
+                        title="View Details">
+                  <span class="icon">👁️</span> Details
+                </button>
+                
+                @if (isAdmin) {
+                  <button class="btn btn-update"
+                          (click)="updatePosition(position.positionId); $event.stopPropagation()"
+                          title="Update Position">
+                    <span class="icon">✏️</span> Update
+                  </button>
+                  <button class="btn btn-delete"
+                          (click)="deletePosition(position.positionId); $event.stopPropagation()"
+                          [disabled]="position.employeeCount > 0"
+                          title="Delete Position">
+                    <span class="icon">🗑️</span> Delete
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="no-data">
+                <div class="empty-state">
+                  <span class="empty-icon">🏷️</span>
+                  <p>No positions found</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="pagination-btn" 
+                (click)="previousPage()" 
+                [disabled]="currentPage === 1">
+          ← Previous
+        </button>
+
+        @for (page of getPageNumbers(); track page) {
+          <button class="pagination-btn page-number" 
+                  [class.active]="currentPage === page"
+                  (click)="goToPage(page)">
+            {{ page }}
+          </button>
+        }
+
+        <button class="pagination-btn" 
+                (click)="nextPage()" 
+                [disabled]="currentPage === totalPages">
+          Next →
+        </button>
+
+        <span class="pagination-info">
+          Page {{ currentPage }} of {{ totalPages }} | Total: {{ totalCount }} positions
+        </span>
+      </div>
+    }
+  }
+</div>
+
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [showCancel]="showCancelButton"
+  [confirmText]="showCancelButton ? 'Delete' : 'OK'"
+  (confirm)="showCancelButton ? confirmDelete() : closeModal()"
+  (cancel)="closeModal()"
+  (close)="closeModal()">
+</app-modal>

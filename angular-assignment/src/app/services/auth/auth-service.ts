@@ -24,7 +24,6 @@ export class AuthService {
   private userEmailKey = 'user_email';
   private userNameKey = 'user_name';
 
-  /** 🔥 NEW: auth initialization flag */
   private authReady = false;
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
@@ -34,35 +33,50 @@ export class AuthService {
   public userRole$ = this.userRoleSubject.asObservable();
 
   constructor() {
+    console.log('🔧 AuthService constructor called');
+    
+    // Initialize auth state from localStorage
     if (this.isBrowser()) {
       const token = this.getToken();
       const role = this.getUserRole();
+      
+      console.log('📦 Token from localStorage:', token ? 'EXISTS' : 'NULL');
+      console.log('👤 Role from localStorage:', role || 'NONE');
 
       if (token) {
+        console.log('✅ User is authenticated (token found)');
         this.isAuthenticatedSubject.next(true);
         this.userRoleSubject.next(role);
+      } else {
+        console.log('❌ User is NOT authenticated (no token)');
+        this.isAuthenticatedSubject.next(false);
       }
     }
-
-    /** 🔥 VERY IMPORTANT */
+    
     this.authReady = true;
   }
 
-  /** Guards will wait for this */
   isAuthReady(): boolean {
     return this.authReady;
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
+    console.log('🔐 Login attempt for:', email);
+    
     return this.http
       .post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
         tap(response => {
           if (response && response.token) {
+            console.log('✅ Login successful');
+            console.log('📝 Saving token and user info');
+            
             this.setToken(response.token);
             this.setUserInfo(response.email, response.name, response.role);
             this.isAuthenticatedSubject.next(true);
             this.userRoleSubject.next(response.role);
+            
+            console.log('✅ Auth state updated');
           }
         })
       );
@@ -80,6 +94,8 @@ export class AuthService {
   }
 
   logout(): void {
+    console.log('🚪 Logging out');
+    
     if (this.isBrowser()) {
       localStorage.removeItem(this.tokenKey);
       localStorage.removeItem(this.userRoleKey);
@@ -114,24 +130,48 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    return this.getUserRole() === 'Admin';
+    const role = this.getUserRole();
+    const isAdminUser = role === 'Admin';
+    console.log('🔍 isAdmin check - Role:', role, 'Result:', isAdminUser);
+    return isAdminUser;
   }
 
   isEmployee(): boolean {
     return this.getUserRole() === 'Employee';
   }
 
+  // 🔥 FIXED: Now checks token existence, not just BehaviorSubject
   isLoggedIn(): boolean {
-    return this.isAuthenticatedSubject.value;
+    const token = this.getToken();
+    const loggedIn = !!token;
+    
+    console.log('🔍 isLoggedIn check');
+    console.log('  - Token exists:', !!token);
+    console.log('  - Result:', loggedIn);
+    
+    // Update BehaviorSubject if it's out of sync
+    if (this.isAuthenticatedSubject.value !== loggedIn) {
+      console.log('⚠️ Syncing BehaviorSubject to match token state');
+      this.isAuthenticatedSubject.next(loggedIn);
+      
+      if (loggedIn) {
+        const role = this.getUserRole();
+        this.userRoleSubject.next(role);
+      }
+    }
+    
+    return loggedIn;
   }
 
   private setToken(token: string): void {
     if (!this.isBrowser()) return;
+    console.log('💾 Saving token to localStorage');
     localStorage.setItem(this.tokenKey, token);
   }
 
   private setUserInfo(email: string, name: string, role: string): void {
     if (!this.isBrowser()) return;
+    console.log('💾 Saving user info - Role:', role);
     localStorage.setItem(this.userEmailKey, email);
     localStorage.setItem(this.userNameKey, name);
     localStorage.setItem(this.userRoleKey, role);

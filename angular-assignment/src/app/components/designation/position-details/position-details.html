@@ -1,0 +1,50 @@
+<div class="container">
+  @if (loading) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading position details...</p>
+    </div>
+  } @else if (position) {
+    <div class="details-card">
+      <div class="details-header">
+        <h2>Position Details</h2>
+        <button class="btn btn-back" (click)="goBack()">
+          <span class="icon">←</span> Back to List
+        </button>
+      </div>
+
+      <div class="details-body">
+        <div class="detail-row">
+          <label>Position Name:</label>
+          <span class="value">{{ position.name }}</span>
+        </div>
+
+        <div class="detail-row">
+          <label>Description:</label>
+          <span class="value">{{ position.description || 'No description provided' }}</span>
+        </div>
+
+        <div class="detail-row">
+          <label>Number of Employees:</label>
+          <span class="value">
+            <span class="employee-count-badge">{{ position.employeeCount }}</span>
+          </span>
+        </div>
+
+        <div class="detail-row">
+          <label>Created At:</label>
+          <span class="value">{{ position.createdAt | date: 'MMM d, y, h:mm a' }}</span>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [showCancel]="false"
+  (confirm)="closeModal()"
+  (close)="closeModal()">
+</app-modal>
