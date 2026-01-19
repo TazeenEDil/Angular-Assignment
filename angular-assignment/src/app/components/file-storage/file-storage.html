@@ -1,1 +1,213 @@
-<p>file-storage works!</p>
+<div class="container">
+  <div class="header-section">
+    <h2>File Storage</h2>
+    @if (isAdmin) {
+      <button class="btn btn-add" (click)="openUploadModal()">
+        <span class="icon">⬆️</span> Upload File
+      </button>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading files...</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table class="file-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>File Name</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Category</th>
+            <th>Uploaded</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (file of paginatedFiles; track file.employeeFileId) {
+            <tr>
+              <td>{{ file.employeeName }}</td>
+              <td>
+                <div class="file-name">
+                  <span class="file-icon">{{ getFileIcon(file.fileType) }}</span>
+                  <span>{{ file.fileName }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="file-type-badge">{{ file.fileType.toUpperCase() }}</span>
+              </td>
+              <td>{{ formatFileSize(file.fileSize) }}</td>
+              <td>
+                <span class="category-badge">{{ file.fileCategory || 'General' }}</span>
+              </td>
+              <td>{{ file.uploadedAt | date: 'MMM d, y' }}</td>
+              <td class="action-buttons">
+                <button class="btn btn-preview"
+                        (click)="previewFile(file)"
+                        title="Preview File">
+                  <span class="icon">👁️</span>
+                </button>
+                <button class="btn btn-download"
+                        (click)="downloadFile(file)"
+                        title="Download File">
+                  <span class="icon">⬇️</span>
+                </button>
+                @if (isAdmin) {
+                  <button class="btn btn-delete"
+                          (click)="deleteFile(file.employeeFileId, file.fileName)"
+                          title="Delete File">
+                    <span class="icon">🗑️</span>
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="no-data">
+                <div class="empty-state">
+                  <span class="empty-icon">📁</span>
+                  <p>No files found</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="pagination-btn" 
+                (click)="previousPage()" 
+                [disabled]="currentPage === 1">
+          ← Previous
+        </button>
+
+        @for (page of getPageNumbers(); track page) {
+          <button class="pagination-btn page-number" 
+                  [class.active]="currentPage === page"
+                  (click)="goToPage(page)">
+            {{ page }}
+          </button>
+        }
+
+        <button class="pagination-btn" 
+                (click)="nextPage()" 
+                [disabled]="currentPage === totalPages">
+          Next →
+        </button>
+
+        <span class="pagination-info">
+          Page {{ currentPage }} of {{ totalPages }} | Total: {{ totalCount }} files
+        </span>
+      </div>
+    }
+  }
+</div>
+
+<!-- Upload Modal -->
+@if (showUploadModal) {
+  <div class="modal-overlay" (click)="closeUploadModal()">
+    <div class="modal-content upload-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Upload File</h3>
+        <button class="close-btn" (click)="closeUploadModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Select Employee <span class="required">*</span></label>
+          <select [(ngModel)]="selectedEmployeeId" class="form-control">
+            <option [ngValue]="null">-- Select Employee --</option>
+            @for (emp of employees; track emp.id) {
+              <option [ngValue]="emp.id">{{ emp.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>File Category</label>
+          <select [(ngModel)]="fileCategory" class="form-control">
+            <option value="Resume">Resume</option>
+            <option value="Contract">Contract</option>
+            <option value="Certificate">Certificate</option>
+            <option value="ID Document">ID Document</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Select File <span class="required">*</span></label>
+          <input 
+            type="file" 
+            class="form-control"
+            (change)="onFileSelected($event)"
+            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+          <small class="file-hint">Allowed: PDF, DOC, DOCX, PNG, JPG (Max 10MB)</small>
+        </div>
+
+        @if (selectedFile) {
+          <div class="selected-file-info">
+            <span class="file-icon">{{ getFileIcon(selectedFile.name.split('.').pop() || '') }}</span>
+            <span class="file-name">{{ selectedFile.name }}</span>
+            <span class="file-size">{{ formatFileSize(selectedFile.size) }}</span>
+          </div>
+        }
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" (click)="closeUploadModal()" [disabled]="uploading">
+          Cancel
+        </button>
+        <button class="btn btn-submit" (click)="uploadFile()" [disabled]="uploading || !selectedEmployeeId || !selectedFile">
+          @if (uploading) {
+            <span class="spinner-small"></span>
+            <span>Uploading...</span>
+          } @else {
+            <span>Upload</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Preview Modal -->
+@if (showPreviewModal) {
+  <div class="modal-overlay" (click)="closePreviewModal()">
+    <div class="modal-content preview-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ previewFileName }}</h3>
+        <button class="close-btn" (click)="closePreviewModal()">×</button>
+      </div>
+      <div class="modal-body preview-body">
+        @if (previewLoading) {
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading preview...</p>
+          </div>
+        } @else {
+          @if (previewFileType === 'pdf') {
+            <iframe [src]="previewUrl" class="pdf-preview"></iframe>
+          } @else {
+            <img [src]="previewUrl" [alt]="previewFileName" class="image-preview">
+          }
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [showCancel]="showCancelButton"
+  [confirmText]="showCancelButton ? 'Delete' : 'OK'"
+  (confirm)="showCancelButton ? confirmDelete() : closeModal()"
+  (cancel)="closeModal()"
+  (close)="closeModal()">
+</app-modal>

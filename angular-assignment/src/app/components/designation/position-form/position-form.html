@@ -1,0 +1,72 @@
+<div class="container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>{{ isEditMode ? 'Edit Position' : 'Add New Position' }}</h2>
+    </div>
+
+    @if (loading) {
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading position details...</p>
+      </div>
+    } @else {
+      <form (ngSubmit)="onSubmit()" class="position-form">
+        <div class="form-group">
+          <label for="name">Position Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name"
+            [(ngModel)]="name"
+            class="form-control"
+            placeholder="Enter position name"
+            required
+            maxlength="100">
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea 
+            id="description" 
+            name="description"
+            [(ngModel)]="description"
+            class="form-control"
+            rows="4"
+            placeholder="Enter position description (optional)"
+            maxlength="500"></textarea>
+          <small class="char-count">{{ description.length }}/500 characters</small>
+        </div>
+
+        <div class="form-actions">
+          <button 
+            type="button" 
+            class="btn btn-cancel"
+            (click)="cancel()"
+            [disabled]="submitting">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-submit"
+            [disabled]="submitting">
+            @if (submitting) {
+              <span class="spinner-small"></span>
+              <span>{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+            } @else {
+              <span>{{ isEditMode ? 'Update Position' : 'Create Position' }}</span>
+            }
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>
+
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [showCancel]="false"
+  (confirm)="closeModal()"
+  (close)="closeModal()">
+</app-modal>

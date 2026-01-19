@@ -2,3 +2,17 @@ html, body {
   height: 100%;
   margin: 0;
 }
+.app-container {
+      min-height: 100vh;
+      background: #f5f7fa;
+    }
+
+    .main-content {
+      display: flex;
+      padding-top: 70px;
+    }
+
+    .content-area {
+      flex: 1;
+      min-height: calc(100vh - 70px);
+    }
