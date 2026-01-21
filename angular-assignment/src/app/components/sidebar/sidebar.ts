@@ -10,12 +10,20 @@ import { AuthService } from '../../services/auth/auth-service';
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css']
 })
-export class Sidebar{
+export class Sidebar {
   private router = inject(Router);
   private authService = inject(AuthService);
 
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
   get isAdmin(): boolean {
     return this.authService.isAdmin();
+  }
+
+  get isEmployee(): boolean {
+    return this.authService.isEmployee();
   }
 
   isActive(route: string): boolean {

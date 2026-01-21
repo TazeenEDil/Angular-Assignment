@@ -29,13 +29,13 @@ export const routes: Routes = [
     path: 'employee/add', 
     component: EmployeeForm, 
     canActivate: [authGuard, roleGuard], 
-    data: { roles: ['Admin'] } // 🔥 CHANGED 'role' to 'roles' (array)
+    data: { roles: ['Admin'] }
   },
   { 
     path: 'employee/edit/:id', 
     component: EmployeeUpdate, 
     canActivate: [authGuard, roleGuard], 
-    data: { roles: ['Admin'] } // 🔥 CHANGED 'role' to 'roles' (array)
+    data: { roles: ['Admin'] } 
   },
   { 
     path: 'employee/:id', 
@@ -43,21 +43,21 @@ export const routes: Routes = [
     canActivate: [authGuard] 
   },
   
-  // Designation (Position) routes - SPECIFIC ROUTES FIRST!
+  // Designation (Position) routes 
   { 
     path: 'designation/add', 
     component: PositionForm,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['Admin'] } // 🔥 CHANGED 'role' to 'roles' (array)
+    data: { roles: ['Admin'] } 
   },
   { 
     path: 'designation/edit/:id', 
     component: PositionForm,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['Admin'] } // 🔥 CHANGED 'role' to 'roles' (array)
+    data: { roles: ['Admin'] }
   },
   { 
-    path: 'designation/:id', // 🔥 ADD THIS ROUTE - Must come AFTER specific routes
+    path: 'designation/:id', 
     component: PositionDetails,
     canActivate: [authGuard]
   },

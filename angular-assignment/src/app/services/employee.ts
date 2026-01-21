@@ -7,6 +7,9 @@ import { Employee } from '../models/employee.model';
   providedIn: 'root'
 })
 export class EmployeeService {
+  getAll() {
+    throw new Error('Method not implemented.');
+  }
   private apiUrl = 'http://localhost:5224/api/employees';
 
   constructor(private http: HttpClient) {}

@@ -1,12 +1,29 @@
-<p>modal works!</p>
-<nav class="navbar">
-  <h2>Employee Management System</h2>
+@if (show) {
+  <div class="modal-backdrop" (click)="onClose()"></div>
   
-  @if (isAuthenticated$ | async) {
-    <div class="nav-links">
-      <a routerLink="/">Employee List</a>
-      <a routerLink="/employee/add">Add Employees</a>
-      <button class="logout-btn" (click)="logout()">Logout</button>
+  <div class="modal">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ title }}</h5>
+          <button type="button" class="btn-close" (click)="onClose()">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <p>{{ message }}</p>
+        </div>
+        
+        <div class="modal-footer">
+          @if (showCancel) {
+            <button class="btn btn-secondary" (click)="onCancel()">
+              Cancel
+            </button>
+          }
+          <button class="btn btn-primary" (click)="onConfirm()">
+            {{ confirmText }}
+          </button>
+        </div>
+      </div>
     </div>
-  }
-</nav>
+  </div>
+}

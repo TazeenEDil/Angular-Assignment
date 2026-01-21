@@ -8,6 +8,37 @@
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 100;
   overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+
+/* Mobile: Sidebar hidden by default */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 280px;
+    top: 60px;
+    height: calc(100vh - 60px);
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  /* Overlay when sidebar is open on mobile */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    display: none;
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
 }
 
 .sidebar-nav {
@@ -59,6 +90,25 @@
 .nav-text {
   font-size: 16px;
   letter-spacing: 0.3px;
+}
+
+/* Tablet adjustments */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .nav-link {
+    padding: 12px 20px;
+  }
+
+  .nav-text {
+    font-size: 14px;
+  }
+
+  .nav-icon {
+    font-size: 18px;
+  }
 }
 
 /* Scrollbar styling */

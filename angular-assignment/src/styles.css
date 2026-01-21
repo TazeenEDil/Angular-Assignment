@@ -1,18 +1,36 @@
-html, body {
-  height: 100%;
+/* Add this to your global styles.css or app.component.css */
+
+/* Account for fixed header */
+body {
   margin: 0;
+  padding: 0;
+  padding-top: 70px; /* Height of header */
 }
+
+/* Main app container */
 .app-container {
-      min-height: 100vh;
-      background: #f5f7fa;
-    }
+  padding-top: 70px; /* Height of header */
+  min-height: 100vh;
+}
 
-    .main-content {
-      display: flex;
-      padding-top: 70px;
-    }
+/* If you have a router outlet wrapper, add this class to it */
+router-outlet + * {
+  padding-top: 70px;
+}
 
-    .content-area {
-      flex: 1;
-      min-height: calc(100vh - 70px);
-    }
+/* Alternative: Add this class to your main component wrapper */
+.main-content {
+  padding-top: 70px;
+  min-height: calc(100vh - 70px);
+}
+
+/* For components with sidebar */
+.with-sidebar {
+  padding-top: 70px;
+}
+
+/* Sidebar positioning (if needed) */
+.sidebar {
+  top: 70px !important; /* Position below header */
+  height: calc(100vh - 70px) !important; /* Account for header */
+}
