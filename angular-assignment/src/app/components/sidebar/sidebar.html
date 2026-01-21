@@ -1,26 +1,42 @@
-<aside class="sidebar">
-  <nav class="sidebar-nav">
-    <ul class="nav-list">
-      <li class="nav-item" [class.active]="isActive('/employees')">
-        <a (click)="navigateTo('/employees')" class="nav-link">
-          <span class="nav-icon">👥</span>
-          <span class="nav-text">Employees</span>
-        </a>
-      </li>
-      
-      <li class="nav-item" [class.active]="isActive('/designation')">
-        <a (click)="navigateTo('/designation')" class="nav-link">
-          <span class="nav-icon">🏷️</span>
-          <span class="nav-text">Designation</span>
-        </a>
-      </li>
-      
-      <li class="nav-item" [class.active]="isActive('/file-storage')">
-        <a (click)="navigateTo('/file-storage')" class="nav-link">
-          <span class="nav-icon">📁</span>
-          <span class="nav-text">File Storage</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
-</aside>
+<!-- Only show sidebar when user is logged in -->
+@if (isLoggedIn) {
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <!-- Employees - Visible to both Admin and Employee -->
+        <li class="nav-item" [class.active]="isActive('/employees')">
+          <a (click)="navigateTo('/employees')" class="nav-link">
+            <span class="nav-icon">👥</span>
+            <span class="nav-text">Employees</span>
+          </a>
+        </li>
+        
+        <!-- Designation - Only visible to Admin -->
+        @if (isAdmin) {
+          <li class="nav-item" [class.active]="isActive('/designation')">
+            <a (click)="navigateTo('/designation')" class="nav-link">
+              <span class="nav-icon">🏷️</span>
+              <span class="nav-text">Designation</span>
+            </a>
+          </li>
+        }
+        
+        <!-- File Storage - Visible to both Admin and Employee -->
+        <li class="nav-item" [class.active]="isActive('/file-storage')">
+          <a (click)="navigateTo('/file-storage')" class="nav-link">
+            <span class="nav-icon">📁</span>
+            <span class="nav-text">File Storage</span>
+          </a>
+        </li>
+        
+        <!-- Attendance - Visible to both Admin and Employee -->
+        <li class="nav-item" [class.active]="isActive('/attendance')">
+          <a (click)="navigateTo('/attendance')" class="nav-link">
+            <span class="nav-icon">📅</span>
+            <span class="nav-text">Attendance</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+}

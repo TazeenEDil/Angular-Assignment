@@ -49,7 +49,7 @@
               <td class="action-buttons">
                 <button class="btn btn-preview"
                         (click)="previewFile(file)"
-                        title="Preview File">
+                        title="Preview File (Opens in new tab)">
                   <span class="icon">👁️</span>
                 </button>
                 <button class="btn btn-download"
@@ -170,32 +170,6 @@
             <span>Upload</span>
           }
         </button>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- Preview Modal -->
-@if (showPreviewModal) {
-  <div class="modal-overlay" (click)="closePreviewModal()">
-    <div class="modal-content preview-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>{{ previewFileName }}</h3>
-        <button class="close-btn" (click)="closePreviewModal()">×</button>
-      </div>
-      <div class="modal-body preview-body">
-        @if (previewLoading) {
-          <div class="loading-spinner">
-            <div class="spinner"></div>
-            <p>Loading preview...</p>
-          </div>
-        } @else {
-          @if (previewFileType === 'pdf') {
-            <iframe [src]="previewUrl" class="pdf-preview"></iframe>
-          } @else {
-            <img [src]="previewUrl" [alt]="previewFileName" class="image-preview">
-          }
-        }
       </div>
     </div>
   </div>

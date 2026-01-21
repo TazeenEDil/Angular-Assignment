@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FileStorageService, EmployeeFile } from '../../services/file-storage-service';
 import { EmployeeService } from '../../services/employee';
 import { AuthService } from '../../services/auth/auth-service';
@@ -18,7 +17,6 @@ export class FileStorage implements OnInit {
   private fileStorageService = inject(FileStorageService);
   private employeeService = inject(EmployeeService);
   private authService = inject(AuthService);
-  private sanitizer = inject(DomSanitizer);
 
   files: EmployeeFile[] = [];
   paginatedFiles: EmployeeFile[] = [];
@@ -37,13 +35,6 @@ export class FileStorage implements OnInit {
   selectedEmployeeId: number | null = null;
   selectedFile: File | null = null;
   fileCategory: string = 'Resume';
-  
-  // Preview modal
-  showPreviewModal: boolean = false;
-  previewUrl: SafeResourceUrl | string = '';
-  previewFileName: string = '';
-  previewFileType: string = '';
-  previewLoading: boolean = false;
 
   // Delete confirmation
   showModal = false;
@@ -191,7 +182,7 @@ export class FileStorage implements OnInit {
   }
 
   previewFile(file: EmployeeFile) {
-    console.log('Previewing file:', file);
+    console.log('Opening preview in new tab for file:', file);
     
     const previewableTypes = ['pdf', 'png', 'jpg', 'jpeg'];
     const fileExt = file.fileType.toLowerCase();
@@ -201,12 +192,7 @@ export class FileStorage implements OnInit {
       return;
     }
 
-    this.previewLoading = true;
-    this.previewFileName = file.fileName;
-    this.previewFileType = fileExt;
-    this.showPreviewModal = true;
-
-    // Method 1: Try getting preview URL from API
+    // Get preview URL and open in new tab
     this.fileStorageService.getPreviewUrl(file.employeeFileId).subscribe({
       next: response => {
         console.log('Preview URL response:', response);
@@ -216,38 +202,30 @@ export class FileStorage implements OnInit {
           ? response.url 
           : this.apiBaseUrl + response.url;
         
-        console.log('Full preview URL:', fullUrl);
+        console.log('Opening URL in new tab:', fullUrl);
         
-        // Sanitize URL for iframe
-        if (fileExt === 'pdf') {
-          this.previewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullUrl);
-        } else {
-          this.previewUrl = fullUrl;
-        }
-        
-        this.previewLoading = false;
+        // Open in new tab
+        window.open(fullUrl, '_blank');
       },
       error: err => {
         console.error('Failed to get preview URL, trying download method:', err);
         
-        // Method 2: Fallback - download and create blob URL
+        // Fallback - download and create blob URL to open in new tab
         this.fileStorageService.downloadFile(file.employeeFileId).subscribe({
           next: blob => {
             console.log('Downloaded blob for preview:', blob);
             const blobUrl = window.URL.createObjectURL(blob);
             
-            if (fileExt === 'pdf') {
-              this.previewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl);
-            } else {
-              this.previewUrl = blobUrl;
-            }
+            // Open blob URL in new tab
+            window.open(blobUrl, '_blank');
             
-            this.previewLoading = false;
+            // Clean up blob URL after a delay
+            setTimeout(() => {
+              window.URL.revokeObjectURL(blobUrl);
+            }, 100);
           },
           error: downloadErr => {
             console.error('Failed to download file for preview:', downloadErr);
-            this.previewLoading = false;
-            this.showPreviewModal = false;
             this.showErrorModal('Failed to preview file. Please try downloading instead.');
           }
         });
@@ -346,17 +324,5 @@ export class FileStorage implements OnInit {
 
   closeUploadModal() {
     this.showUploadModal = false;
-  }
-
-  closePreviewModal() {
-    this.showPreviewModal = false;
-    
-    // Clean up blob URLs if created
-    if (typeof this.previewUrl === 'string' && this.previewUrl.startsWith('blob:')) {
-      window.URL.revokeObjectURL(this.previewUrl);
-    }
-    
-    this.previewUrl = '';
-    this.previewLoading = false;
   }
 }

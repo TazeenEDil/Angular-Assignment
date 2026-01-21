@@ -1,6 +1,7 @@
 .container {
+  margin-left: 270px;
   padding: 30px;
-  max-width: 100%;
+  max-width: calc(100vw - 300px);
 }
 
 .header-section {
@@ -253,7 +254,9 @@
 
 @media (max-width: 768px) {
   .container {
+    margin-left: 0;
     padding: 20px;
+    max-width: 100%;
   }
 
   .header-section {
