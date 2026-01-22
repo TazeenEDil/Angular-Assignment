@@ -33,4 +33,12 @@ export class Sidebar {
   navigateTo(route: string) {
     this.router.navigate([route]);
   }
+
+  navigateToAttendance() {
+  if (this.isAdmin) {
+    this.router.navigate(['/attendance/admin']);
+  } else {
+    this.router.navigate(['/attendance']);
+  }
+}
 }

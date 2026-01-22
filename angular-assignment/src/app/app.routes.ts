@@ -7,8 +7,10 @@ import { EmployeeDetails } from './components/employees/employee-details/employe
 import { EmployeeUpdate } from './components/employees/employee-update/employee-update';
 import { DesignationList } from './components/designation/designation-list/designation-list';
 import { PositionForm } from './components/designation/position-form/position-form';
-import { PositionDetails } from './components/designation/position-details/position-details'; // 🔥 ADD THIS IMPORT
+import { PositionDetails } from './components/designation/position-details/position-details';
 import { FileStorage } from './components/file-storage/file-storage';
+import { EmployeeAttendanceComponent } from './components/attendance/employee-attendance/employee-attendance';
+import { AdminAttendance} from './components/attendance/admin-attendance/admin-attendance';
 import { authGuard } from './guards/auth-guard';
 import { roleGuard } from './guards/role-guard';
 
@@ -74,6 +76,26 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   
+  // Attendance routes - Employee view (default)
+  { 
+    path: 'attendance', 
+    component: EmployeeAttendanceComponent,
+    canActivate: [authGuard]
+  },
+
+{
+  path: 'attendance',
+  component: EmployeeAttendanceComponent,
+  canActivate: [authGuard]
+},
+
+// Admin route  
+{
+  path: 'attendance/admin',
+  component: AdminAttendance,
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['Admin'] }
+},
   // Default routes
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }

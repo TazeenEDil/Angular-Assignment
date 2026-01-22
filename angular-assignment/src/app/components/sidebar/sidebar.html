@@ -31,10 +31,10 @@
         
         <!-- Attendance - Visible to both Admin and Employee -->
         <li class="nav-item" [class.active]="isActive('/attendance')">
-          <a (click)="navigateTo('/attendance')" class="nav-link">
-            <span class="nav-icon">📅</span>
-            <span class="nav-text">Attendance</span>
-          </a>
+           <a (click)="navigateToAttendance()" class="nav-link">
+             <span class="nav-icon">📅</span>
+             <span class="nav-text">Attendance</span>
+           </a>
         </li>
       </ul>
     </nav>

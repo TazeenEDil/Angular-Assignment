@@ -7,7 +7,7 @@ import { AttendanceAlert } from '../models/attendance.model';
   providedIn: 'root'
 })
 export class AttendanceAlertService {
-  private apiUrl = 'https://localhost:5224/api/attendancealerts';
+  private apiUrl = 'http://localhost:5224/api/attendancealerts';
 
   constructor(private http: HttpClient) {}
 

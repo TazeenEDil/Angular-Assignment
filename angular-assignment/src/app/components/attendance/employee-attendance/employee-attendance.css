@@ -2,6 +2,7 @@
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
+  margin-left: 260px; /* Add space for sidebar - adjust based on your sidebar width */
 }
 
 .page-title {
@@ -485,6 +486,10 @@ textarea.form-control {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .attendance-container {
+    margin-left: 0;
+  }
+  
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
