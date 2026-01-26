@@ -1,5 +1,5 @@
 <div class="attendance-container">
-  <h2 class="page-title">My Attendance</h2>
+  <h2 class="page-title">My Attendance Records</h2>
 
   @if (loading) {
     <div class="loading">Loading...</div>
@@ -33,120 +33,6 @@
         </div>
       </div>
     }
-
-    <!-- Today's Actions -->
-    <div class="action-section">
-      <h3>Today's Actions</h3>
-      
-      <div class="action-grid">
-        <!-- Clock In/Out -->
-        <div class="action-card">
-          <h4>Clock In/Out</h4>
-          @if (!todayAttendance?.clockIn) {
-            <div class="form-group">
-              <label>Work Mode:</label>
-              <select [(ngModel)]="workMode" class="form-control">
-                <option value="In-Office">In-Office</option>
-                <option value="Remote">Remote</option>
-              </select>
-            </div>
-            <button class="btn btn-primary" (click)="clockIn()">Clock In</button>
-          } @else if (!todayAttendance?.clockOut) {
-            <div class="time-display">
-              <p>Clocked In: {{ formatTime(todayAttendance?.clockIn ?? null) }}</p>
-              <p>Mode: {{ todayAttendance?.workMode ?? '-' }}</p>
-              <p class="status-badge" [ngClass]="getStatusClass(todayAttendance?.status ?? '')">
-                {{ todayAttendance?.status ?? 'Unknown' }}
-              </p>
-            </div>
-            <button class="btn btn-danger" (click)="clockOut()">Clock Out</button>
-          } @else {
-            <div class="time-display">
-              <p>Clocked In: {{ formatTime(todayAttendance?.clockIn ?? null) }}</p>
-              <p>Clocked Out: {{ formatTime(todayAttendance?.clockOut ?? null) }}</p>
-              <p>Total Hours: {{ formatDuration(todayAttendance?.totalWorkHours ?? null) }}</p>
-            </div>
-          }
-        </div>
-
-        <!-- Break -->
-        <div class="action-card">
-          <h4>Break</h4>
-          @if (!todayAttendance?.clockIn) {
-            <p class="text-muted">Clock in first to take a break</p>
-          } @else if (todayAttendance?.clockOut) {
-            <p class="text-muted">Already clocked out</p>
-          } @else if (!isOnBreak) {
-            <button class="btn btn-warning" (click)="startBreak()">Start Break</button>
-          } @else {
-            <p>Break Started: {{ formatTime(todayAttendance?.breakStart ?? null) }}</p>
-            <button class="btn btn-success" (click)="endBreak()">End Break</button>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- Daily Report -->
-    <div class="report-section">
-      <h3>Daily Report</h3>
-      @if (!todayAttendance?.dailyReportSubmitted) {
-        <div class="form-group">
-          <textarea 
-            [(ngModel)]="dailyReport" 
-            class="form-control" 
-            rows="4" 
-            placeholder="Enter your daily report...">
-          </textarea>
-        </div>
-        <button class="btn btn-primary" (click)="submitDailyReport()">Submit Report</button>
-      } @else {
-        <div class="report-display">
-          <p><strong>Report Submitted:</strong> {{ formatTime(todayAttendance?.clockOut ?? null) }}</p>
-          <p>{{ todayAttendance?.dailyReport ?? 'No report available' }}</p>
-        </div>
-      }
-    </div>
-
-    <!-- Leave Request -->
-    <div class="leave-section">
-      <div class="section-header">
-        <h3>Leave Requests</h3>
-        <button class="btn btn-primary" (click)="openLeaveModal()">Request Leave</button>
-      </div>
-      
-      @if (myLeaveRequests.length > 0) {
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Leave Type</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Days</th>
-              <th>Status</th>
-              <th>Reason</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (request of myLeaveRequests; track request.leaveRequestId) {
-              <tr>
-                <td>{{ request.leaveTypeName }}</td>
-                <td>{{ formatDate(request.startDate) }}</td>
-                <td>{{ formatDate(request.endDate) }}</td>
-                <td>{{ request.totalDays }}</td>
-                <td>
-                  <span class="status-badge" [ngClass]="getLeaveStatusClass(request.status)">
-                    {{ request.status }}
-                  </span>
-                </td>
-                <td>{{ request.reason }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      } @else {
-        <p class="text-muted">No leave requests found</p>
-      }
-    </div>
 
     <!-- Alerts -->
     @if (alerts.length > 0) {
@@ -212,49 +98,6 @@
     </div>
   }
 </div>
-
-<!-- Leave Request Modal -->
-@if (showLeaveModal) {
-  <div class="modal-backdrop" (click)="closeLeaveModal()"></div>
-  <div class="modal">
-    <div class="modal-dialog" (click)="$event.stopPropagation()">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Request Leave</h5>
-          <button type="button" class="btn-close" (click)="closeLeaveModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Leave Type:</label>
-            <select [(ngModel)]="leaveForm.leaveTypeId" class="form-control">
-              @for (type of leaveTypes; track type.leaveTypeId) {
-                <option [value]="type.leaveTypeId">
-                  {{ type.name }} ({{ type.maxDaysPerYear }} days/year)
-                </option>
-              }
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Start Date:</label>
-            <input type="date" [(ngModel)]="leaveForm.startDate" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>End Date:</label>
-            <input type="date" [(ngModel)]="leaveForm.endDate" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Reason:</label>
-            <textarea [(ngModel)]="leaveForm.reason" class="form-control" rows="3"></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="closeLeaveModal()">Cancel</button>
-          <button class="btn btn-primary" (click)="submitLeaveRequest()">Submit Request</button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
 
 <!-- Message Modal -->
 <app-modal

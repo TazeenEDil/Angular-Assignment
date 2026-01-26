@@ -1,0 +1,89 @@
+<p>check-in-out works!</p>
+<div class="checkin-container">
+  <h2 class="page-title">Check-In / Check-Out</h2>
+
+  @if (loading) {
+    <div class="loading">Loading...</div>
+  } @else {
+    <!-- Today's Actions -->
+    <div class="action-section">
+      <h3>Today's Status</h3>
+      
+      <div class="action-grid">
+        <!-- Clock In/Out -->
+        <div class="action-card">
+          <h4>Clock In/Out</h4>
+          @if (!todayAttendance?.clockIn) {
+            <div class="form-group">
+              <label>Work Mode:</label>
+              <select [(ngModel)]="workMode" class="form-control">
+                <option value="In-Office">In-Office</option>
+                <option value="Remote">Remote</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" (click)="clockIn()">Clock In</button>
+          } @else if (!todayAttendance?.clockOut) {
+            <div class="time-display">
+              <p>Clocked In: {{ formatTime(todayAttendance?.clockIn ?? null) }}</p>
+              <p>Mode: {{ todayAttendance?.workMode ?? '-' }}</p>
+              <p class="status-badge" [ngClass]="getStatusClass(todayAttendance?.status ?? '')">
+                {{ todayAttendance?.status ?? 'Unknown' }}
+              </p>
+            </div>
+            <button class="btn btn-danger" (click)="clockOut()">Clock Out</button>
+          } @else {
+            <div class="time-display">
+              <p>Clocked In: {{ formatTime(todayAttendance?.clockIn ?? null) }}</p>
+              <p>Clocked Out: {{ formatTime(todayAttendance?.clockOut ?? null) }}</p>
+              <p>Total Hours: {{ formatDuration(todayAttendance?.totalWorkHours ?? null) }}</p>
+            </div>
+          }
+        </div>
+
+        <!-- Break -->
+        <div class="action-card">
+          <h4>Break</h4>
+          @if (!todayAttendance?.clockIn) {
+            <p class="text-muted">Clock in first to take a break</p>
+          } @else if (todayAttendance?.clockOut) {
+            <p class="text-muted">Already clocked out</p>
+          } @else if (!isOnBreak) {
+            <button class="btn btn-warning" (click)="startBreak()">Start Break</button>
+          } @else {
+            <p>Break Started: {{ formatTime(todayAttendance?.breakStart ?? null) }}</p>
+            <button class="btn btn-success" (click)="endBreak()">End Break</button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Report -->
+    <div class="report-section">
+      <h3>Daily Report</h3>
+      @if (!todayAttendance?.dailyReportSubmitted) {
+        <div class="form-group">
+          <textarea 
+            [(ngModel)]="dailyReport" 
+            class="form-control" 
+            rows="4" 
+            placeholder="Enter your daily report...">
+          </textarea>
+        </div>
+        <button class="btn btn-primary" (click)="submitDailyReport()">Submit Report</button>
+      } @else {
+        <div class="report-display">
+          <p><strong>Report Submitted:</strong> {{ formatTime(todayAttendance?.clockOut ?? null) }}</p>
+          <p>{{ todayAttendance?.dailyReport ?? 'No report available' }}</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Message Modal -->
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  (close)="closeModal()">
+</app-modal>

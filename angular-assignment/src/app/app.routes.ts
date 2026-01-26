@@ -9,8 +9,10 @@ import { DesignationList } from './components/designation/designation-list/desig
 import { PositionForm } from './components/designation/position-form/position-form';
 import { PositionDetails } from './components/designation/position-details/position-details';
 import { FileStorage } from './components/file-storage/file-storage';
-import { EmployeeAttendanceComponent } from './components/attendance/employee-attendance/employee-attendance';
+import { EmployeeAttendance} from './components/attendance/employee-attendance/employee-attendance';
 import { AdminAttendance} from './components/attendance/admin-attendance/admin-attendance';
+import { CheckInOutComponent } from './components/check-in-out/check-in-out';
+import { EmployeeLeaveComponent } from './components/leave/employee-leave/employee-leave';
 import { authGuard } from './guards/auth-guard';
 import { roleGuard } from './guards/role-guard';
 
@@ -79,13 +81,13 @@ export const routes: Routes = [
   // Attendance routes - Employee view (default)
   { 
     path: 'attendance', 
-    component: EmployeeAttendanceComponent,
+    component: EmployeeAttendance,
     canActivate: [authGuard]
   },
 
 {
   path: 'attendance',
-  component: EmployeeAttendanceComponent,
+  component: EmployeeAttendance,
   canActivate: [authGuard]
 },
 
@@ -96,6 +98,61 @@ export const routes: Routes = [
   canActivate: [authGuard, roleGuard],
   data: { roles: ['Admin'] }
 },
+  // Default routes
+
+  { 
+    path: 'time-tracking', 
+    component: CheckInOutComponent,
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'employee/clockin-in', 
+    component: CheckInOutComponent,
+    canActivate: [authGuard]
+  },
+
+ { 
+    path: 'employee/clockin-out', 
+    component: CheckInOutComponent,
+    canActivate: [authGuard]
+  },
+  // Employee attendance view (default)
+  { 
+    path: 'attendance', 
+    component: EmployeeAttendance,
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'employee/attendance', 
+    component: EmployeeAttendance,
+    canActivate: [authGuard]
+  },
+  // Admin attendance management
+  {
+    path: 'attendance/admin',
+    component: AdminAttendance,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['Admin'] }
+  },
+  {
+    path: 'admin/attendance',
+    component: AdminAttendance,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['Admin'] }
+  },
+  
+
+  { 
+    path: 'leave-requests', 
+    component: EmployeeLeaveComponent,
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'employee/leave', 
+    component: EmployeeLeaveComponent,
+    canActivate: [authGuard]
+  },
+  
   // Default routes
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
