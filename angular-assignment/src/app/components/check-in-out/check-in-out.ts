@@ -1,9 +1,8 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
+import { Router } from '@angular/router';
 import { AttendanceService } from '../../services/attendance';
-import { EmployeeService } from '../../services/employee';
 import { AuthService } from '../../services/auth/auth-service';
 import { Modal } from '../modal/modal';
 import { Attendance } from '../../models/attendance.model';
@@ -15,220 +14,185 @@ import { Attendance } from '../../models/attendance.model';
   templateUrl: './check-in-out.html',
   styleUrls: ['./check-in-out.css']
 })
-export class CheckInOutComponent implements OnInit {
+export class CheckInOut implements OnInit {
   private attendanceService = inject(AttendanceService);
-  private employeeService = inject(EmployeeService);
   private authService = inject(AuthService);
-  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
-  employeeId: number | null = null;
   todayAttendance: Attendance | null = null;
   workMode: string = 'In-Office';
   dailyReport: string = '';
-  
+
   showModal = false;
   modalTitle = '';
   modalMessage = '';
+  showCancelButton = false;
   
   loading = false;
   isOnBreak = false;
+  actionInProgress = false;
 
   ngOnInit() {
-    console.log('🚀 Check-In/Out Component Initialized');
-    this.loadEmployeeData();
+    console.log('Check-in/out component initialized for user:', this.authService.getUserEmail());
+    this.loadTodayAttendance();
   }
 
-  loadEmployeeData() {
+  loadTodayAttendance() {
     this.loading = true;
-    console.log('📥 Loading employee data...');
+    const today = new Date().toISOString().split('T')[0];
     
-    const email = this.authService.getUserEmail();
-    console.log('📧 User email from auth:', email);
-    
-    if (!email) {
-      console.error('❌ No email found');
-      this.loading = false;
-      this.showMessage('Error', 'User email not found');
-      return;
-    }
-
-    this.employeeService.getEmployees().subscribe({
-      next: (employees: any[]) => {
-        console.log('✅ Received employees:', employees?.length);
-        console.log('📋 First employee structure:', employees?.[0]);
-        
-        const employee = employees?.find((e: any) => {
-          const empEmail = e.Email || e.email || e.EMAIL;
-          return empEmail?.toLowerCase() === email.toLowerCase();
-        });
-        
-        if (employee) {
-          console.log('✅ Employee found:', employee);
-          console.log('📋 Employee object keys:', Object.keys(employee));
-          
-          // Try all possible ID property names
-          this.employeeId = employee.employeeId || employee.EmployeeId || 
-                           employee.EMPLOYEEID || employee.Id || 
-                           employee.id || employee.ID || null;
-          
-          console.log('✅ Employee ID extracted:', this.employeeId);
-          
-          if (!this.employeeId || this.employeeId === 0 || isNaN(this.employeeId)) {
-            console.error('❌ Invalid employee ID:', this.employeeId);
-            console.error('   Employee object:', employee);
-            this.showMessage('Error', 'Invalid employee ID. Please contact support.');
-            this.loading = false;
-            this.cdr.detectChanges();
-            return;
-          }
-          
-          this.loadTodayAttendance();
+    this.attendanceService.getMyAttendance(today, today).subscribe({
+      next: (records) => {
+        if (records && records.length > 0) {
+          this.todayAttendance = records[0];
+          this.isOnBreak = !!(this.todayAttendance?.breakStart && !this.todayAttendance?.breakEnd);
+          console.log('Today attendance loaded:', this.todayAttendance);
         } else {
-          console.error('❌ Employee not found in list');
-          console.error('   Looking for email:', email);
-          console.error('   Available employees:', employees?.map(e => ({
-            email: e.Email || e.email || e.EMAIL,
-            id: e.employeeId || e.EmployeeId || e.Id || e.id
-          })));
-          this.showMessage('Error', 'Employee not found');
-          this.loading = false;
-          this.cdr.detectChanges();
+          this.todayAttendance = null;
+          this.isOnBreak = false;
         }
+        this.loading = false;
       },
       error: (error) => {
-        console.error('❌ Error loading employee data:', error);
-        this.showMessage('Error', 'Failed to load employee data: ' + (error.error?.message || error.message));
+        console.error('Failed to load attendance:', error);
+        if (error.status === 404) {
+          this.todayAttendance = null;
+          this.isOnBreak = false;
+        } else if (error.status === 401 || error.status === 403) {
+          this.showErrorModal('Session expired. Please login again.');
+          this.router.navigate(['/login']);
+        } else {
+          this.showErrorModal('Failed to load attendance data. Please try again.');
+        }
         this.loading = false;
-        this.cdr.detectChanges();
       }
     });
   }
 
-  async loadTodayAttendance() {
-    if (!this.employeeId) {
-      console.error('❌ No employee ID');
-      this.loading = false;
-      this.cdr.detectChanges();
-      return;
-    }
+  clockIn() {
+    if (this.actionInProgress) return;
     
-    console.log('📊 Loading today\'s attendance for employee:', this.employeeId);
-    
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      
-      console.log('⏰ Loading today\'s attendance...');
-      console.log('  - Employee ID:', this.employeeId);
-      console.log('  - Date:', today);
-      
-      const records = await firstValueFrom(
-        this.attendanceService.getEmployeeAttendance(this.employeeId, today, today)
-      );
-      this.todayAttendance = records && records.length > 0 ? records[0] : null;
-      console.log('✅ Today\'s attendance loaded:', this.todayAttendance ? 'Found' : 'None');
-      
-      this.isOnBreak = !!(this.todayAttendance?.breakStart && !this.todayAttendance?.breakEnd);
-      
-      console.log('✅ Data loaded successfully!');
-      
-    } catch (error: any) {
-      console.error('❌ Error loading data:', error);
-      console.error('  - Status:', error.status);
-      console.error('  - Error body:', error.error);
-      
-      // Don't show error for 404 (no attendance record yet) - this is normal
-      if (error.status === 404) {
-        console.log('ℹ️ No attendance record found for today - this is normal');
-        this.todayAttendance = null;
-      } else {
-        this.showMessage('Error', 'Failed to load data: ' + (error.error?.message || error.message));
+    this.actionInProgress = true;
+    this.attendanceService.clockIn(this.workMode).subscribe({
+      next: () => {
+        this.showSuccessModal('Clocked in successfully!');
+        this.loadTodayAttendance();
+        this.actionInProgress = false;
+      },
+      error: (error) => {
+        console.error('Clock in error:', error);
+        if (error.status === 400) {
+          this.showErrorModal(error.error?.message || 'Cannot clock in at this time');
+        } else if (error.status === 401 || error.status === 403) {
+          this.showErrorModal('Session expired. Please login again.');
+          this.router.navigate(['/login']);
+        } else {
+          this.showErrorModal('Failed to clock in. Please try again.');
+        }
+        this.actionInProgress = false;
       }
-    } finally {
-      this.loading = false;
-      console.log('🎉 Loading set to false, triggering change detection');
-      this.cdr.detectChanges();
-      console.log('✅ Change detection complete - page should render now');
-    }
+    });
   }
 
-  async clockIn() {
-    if (!this.employeeId) return;
+  clockOut() {
+    if (this.actionInProgress || !this.todayAttendance?.clockIn) return;
     
-    try {
-      await firstValueFrom(this.attendanceService.clockIn(this.workMode));
-      this.showMessage('Success', 'Clocked in successfully');
-      await this.loadTodayAttendance();
-    } catch (error: any) {
-      this.showMessage('Error', error.error?.message || 'Failed to clock in');
-    }
+    this.actionInProgress = true;
+    this.attendanceService.clockOut().subscribe({
+      next: () => {
+        this.showSuccessModal('Clocked out successfully!');
+        this.loadTodayAttendance();
+        this.actionInProgress = false;
+      },
+      error: (error) => {
+        console.error('Clock out error:', error);
+        if (error.status === 400) {
+          this.showErrorModal(error.error?.message || 'Cannot clock out at this time');
+        } else if (error.status === 401 || error.status === 403) {
+          this.showErrorModal('Session expired. Please login again.');
+          this.router.navigate(['/login']);
+        } else {
+          this.showErrorModal('Failed to clock out. Please try again.');
+        }
+        this.actionInProgress = false;
+      }
+    });
   }
 
-  async clockOut() {
-    if (!this.employeeId) return;
+  startBreak() {
+    if (this.actionInProgress || !this.todayAttendance?.clockIn || this.todayAttendance.clockOut) return;
     
-    try {
-      await firstValueFrom(this.attendanceService.clockOut());
-      this.showMessage('Success', 'Clocked out successfully');
-      await this.loadTodayAttendance();
-    } catch (error: any) {
-      this.showMessage('Error', error.error?.message || 'Failed to clock out');
-    }
+    this.actionInProgress = true;
+    this.attendanceService.startBreak().subscribe({
+      next: () => {
+        this.isOnBreak = true;
+        this.showSuccessModal('Break started!');
+        this.loadTodayAttendance();
+        this.actionInProgress = false;
+      },
+      error: (error) => {
+        console.error('Start break error:', error);
+        this.showErrorModal(error.error?.message || 'Failed to start break');
+        this.actionInProgress = false;
+      }
+    });
   }
 
-  async startBreak() {
-    if (!this.employeeId) return;
+  endBreak() {
+    if (this.actionInProgress || !this.isOnBreak) return;
     
-    try {
-      await firstValueFrom(this.attendanceService.startBreak());
-      this.isOnBreak = true;
-      this.showMessage('Success', 'Break started');
-      await this.loadTodayAttendance();
-    } catch (error: any) {
-      this.showMessage('Error', error.error?.message || 'Failed to start break');
-    }
+    this.actionInProgress = true;
+    this.attendanceService.endBreak().subscribe({
+      next: () => {
+        this.isOnBreak = false;
+        this.showSuccessModal('Break ended!');
+        this.loadTodayAttendance();
+        this.actionInProgress = false;
+      },
+      error: (error) => {
+        console.error('End break error:', error);
+        this.showErrorModal(error.error?.message || 'Failed to end break');
+        this.actionInProgress = false;
+      }
+    });
   }
 
-  async endBreak() {
-    if (!this.employeeId) return;
-    
-    try {
-      await firstValueFrom(this.attendanceService.endBreak());
-      this.isOnBreak = false;
-      this.showMessage('Success', 'Break ended');
-      await this.loadTodayAttendance();
-    } catch (error: any) {
-      this.showMessage('Error', error.error?.message || 'Failed to end break');
-    }
-  }
-
-  async submitDailyReport() {
-    if (!this.employeeId || !this.dailyReport.trim()) {
-      this.showMessage('Error', 'Please enter a daily report');
+  submitDailyReport() {
+    if (!this.dailyReport.trim()) {
+      this.showErrorModal('Please enter a daily report');
       return;
     }
     
-    try {
-      await firstValueFrom(this.attendanceService.submitDailyReport(this.dailyReport));
-      this.showMessage('Success', 'Daily report submitted successfully');
-      this.dailyReport = '';
-      await this.loadTodayAttendance();
-    } catch (error: any) {
-      this.showMessage('Error', error.error?.message || 'Failed to submit report');
-    }
+    if (this.actionInProgress) return;
+    
+    this.actionInProgress = true;
+    this.attendanceService.submitDailyReport(this.dailyReport).subscribe({
+      next: () => {
+        this.showSuccessModal('Daily report submitted successfully!');
+        this.dailyReport = '';
+        this.loadTodayAttendance();
+        this.actionInProgress = false;
+      },
+      error: (error) => {
+        console.error('Submit report error:', error);
+        this.showErrorModal(error.error?.message || 'Failed to submit report');
+        this.actionInProgress = false;
+      }
+    });
   }
 
   formatTime(dateTime: string | null): string {
     if (!dateTime) return '-';
-    return new Date(dateTime).toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(dateTime).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
   formatDuration(duration: string | null): string {
     if (!duration) return '-';
-    const parts = duration.split(':');
-    return `${parts[0]}h ${parts[1]}m`;
+    const [h, m] = duration.split(':');
+    return `${h}h ${m}m`;
   }
 
   getStatusClass(status: string): string {
@@ -241,19 +205,22 @@ export class CheckInOutComponent implements OnInit {
     }
   }
 
-  showMessage(title: string, message: string) {
-    this.modalTitle = title;
+  showSuccessModal(message: string) {
+    this.modalTitle = 'Success';
     this.modalMessage = message;
+    this.showCancelButton = false;
     this.showModal = true;
-    this.cdr.detectChanges();
+  }
+
+  showErrorModal(message: string) {
+    this.modalTitle = 'Error';
+    this.modalMessage = message;
+    this.showCancelButton = false;
+    this.showModal = true;
   }
 
   closeModal() {
-    console.log('🚪 Closing modal');
     this.showModal = false;
-    this.modalTitle = '';
-    this.modalMessage = '';
-    this.cdr.detectChanges();
-    console.log('✅ Modal closed');
+    this.showCancelButton = false;
   }
 }

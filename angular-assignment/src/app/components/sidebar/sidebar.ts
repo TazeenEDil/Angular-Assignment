@@ -29,13 +29,11 @@ export class Sidebar {
   /**
    * Navigate to Time Tracking module
    * Employees see Check-In/Out page
-   * Admins can see employee time tracking overview (if you want to add that later)
+   * Admins see time tracking overview table
    */
   navigateToTimeTracking(): void {
     if (this.isAdmin) {
-      // For now, both go to employee check-in/out
-      // You can create an admin time tracking view later
-      this.router.navigate(['/employee/check-in-out']);
+      this.router.navigate(['/admin/time-tracking']);
     } else {
       this.router.navigate(['/employee/check-in-out']);
     }
@@ -57,13 +55,11 @@ export class Sidebar {
   /**
    * Navigate to Leave Requests module
    * Employees see their leave requests
-   * Admins see pending leave approvals (if you want to add that later)
+   * Admins see pending leave approvals
    */
   navigateToLeaveRequests(): void {
     if (this.isAdmin) {
-      // For now, both go to employee leave requests
-      // You can create an admin leave approval view later
-      this.router.navigate(['/employee/leave']);
+      this.router.navigate(['/admin/leave']);
     } else {
       this.router.navigate(['/employee/leave']);
     }

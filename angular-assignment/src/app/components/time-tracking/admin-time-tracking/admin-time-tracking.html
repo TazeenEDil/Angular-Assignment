@@ -1,0 +1,81 @@
+<div class="admin-time-tracking-container">
+  <h2 class="page-title">Employee Time Tracking (Admin)</h2>
+
+  <!-- Date Selector -->
+  <div class="date-selector">
+    <label for="selectedDate">Select Date:</label>
+    <input 
+      type="date" 
+      id="selectedDate"
+      [(ngModel)]="selectedDate" 
+      (change)="onDateChange()"
+      class="form-control"
+      style="max-width: 200px; display: inline-block; margin-left: 10px;">
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading...</div>
+  } @else {
+    <div class="time-tracking-table">
+      <h3>Time Tracking for {{ selectedDate }}</h3>
+      
+      @if (allEmployees.length > 0) {
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Employee Name</th>
+              <th>Position</th>
+              <th>Clock In</th>
+              <th>Clock Out</th>
+              <th>Work Mode</th>
+              <th>Break Start</th>
+              <th>Break End</th>
+              <th>Total Hours</th>
+              <th>Status</th>
+              <th>Report Submitted</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (employee of allEmployees; track employee.id) {
+              @let attendance = getAttendance(employee.id!);
+              <tr>
+                <td>{{ employee.name }}</td>
+                <td>{{ employee.positionName }}</td>
+                <td>{{ formatTime(attendance?.clockIn || null) }}</td>
+                <td>{{ formatTime(attendance?.clockOut || null) }}</td>
+                <td>{{ attendance?.workMode || '-' }}</td>
+                <td>{{ formatTime(attendance?.breakStart || null) }}</td>
+                <td>{{ formatTime(attendance?.breakEnd || null) }}</td>
+                <td>{{ formatDuration(attendance?.totalWorkHours || null) }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="getStatusClass(getStatusBadge(employee.id!))">
+                    {{ getStatusBadge(employee.id!) }}
+                  </span>
+                </td>
+                <td>
+                  @if (attendance?.dailyReportSubmitted) {
+                    <span class="badge badge-success">✓</span>
+                  } @else {
+                    <span class="badge badge-danger">✗</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <div class="no-data">
+          <p>No employees found</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Message Modal -->
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  (close)="closeModal()">
+</app-modal>

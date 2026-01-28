@@ -1,32 +1,102 @@
 <div class="admin-attendance-container">
   <h2 class="page-title">Attendance Management</h2>
 
+  <!-- Month/Year Filter -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="year">Year:</label>
+      <select id="year" [(ngModel)]="selectedYear" (change)="onMonthYearChange()" class="form-control">
+        <option [value]="2024">2024</option>
+        <option [value]="2025">2025</option>
+        <option [value]="2026">2026</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="month">Month:</label>
+      <select id="month" [(ngModel)]="selectedMonth" (change)="onMonthYearChange()" class="form-control">
+        <option [value]="1">January</option>
+        <option [value]="2">February</option>
+        <option [value]="3">March</option>
+        <option [value]="4">April</option>
+        <option [value]="5">May</option>
+        <option [value]="6">June</option>
+        <option [value]="7">July</option>
+        <option [value]="8">August</option>
+        <option [value]="9">September</option>
+        <option [value]="10">October</option>
+        <option [value]="11">November</option>
+        <option [value]="12">December</option>
+      </select>
+    </div>
+  </div>
+
   @if (loading && !selectedEmployee) {
-    <div class="loading">Loading...</div>
+    <div class="loading">Loading employees...</div>
   } @else {
     <!-- Employee List with Attendance Bars -->
     @if (!selectedEmployee) {
-      <div class="employees-grid">
-        @for (emp of employees; track emp.Id || emp.id) {
-          <div class="employee-row" (click)="selectEmployee(emp)">
-            <div class="employee-info">
-              <div class="employee-name">{{ emp.Name || emp.name }}</div>
-              <div class="employee-position">{{ emp.Position || emp.position || 'N/A' }}</div>
-            </div>
-            <div class="attendance-bar-container">
-              <div class="attendance-bar">
-                <div class="bar-present" 
-                     [style.width.%]="getAttendancePercentage(emp.stats)">
+      <div class="employees-section">
+        <h3>Employees ({{ allEmployees.length }})</h3>
+        
+        @if (paginatedEmployees.length === 0) {
+          <div class="no-data">No employees found</div>
+        } @else {
+          <div class="employees-grid">
+            @for (emp of paginatedEmployees; track emp.id) {
+              <div class="employee-row" (click)="selectEmployee(emp)">
+                <div class="employee-info">
+                  <div class="employee-name">{{ emp.name }}</div>
+                  <div class="employee-position">{{ emp.positionName }}</div>
                 </div>
-                <div class="bar-absent" 
-                     [style.width.%]="100 - getAttendancePercentage(emp.stats)">
+                <div class="attendance-bar-container">
+                  @if (emp.stats) {
+                    <div class="attendance-bar">
+                      <div class="bar-present" 
+                           [style.width.%]="getAttendancePercentage(emp.stats)">
+                      </div>
+                      <div class="bar-absent" 
+                           [style.width.%]="100 - getAttendancePercentage(emp.stats)">
+                      </div>
+                    </div>
+                    <span class="attendance-percent">
+                      {{ getAttendancePercentage(emp.stats).toFixed(0) }}%
+                    </span>
+                  } @else {
+                    <span class="attendance-loading">Loading...</span>
+                  }
                 </div>
               </div>
-              <span class="attendance-percent">
-                {{ getAttendancePercentage(emp.stats).toFixed(0) }}%
-              </span>
-            </div>
+            }
           </div>
+
+          <!-- Pagination -->
+          @if (totalPages > 1) {
+            <div class="pagination">
+              <button 
+                class="btn btn-sm btn-secondary" 
+                (click)="previousPage()"
+                [disabled]="currentPage === 1">
+                Previous
+              </button>
+
+              @for (page of getPageNumbers(); track page) {
+                <button 
+                  class="btn btn-sm"
+                  [class.btn-primary]="currentPage === page"
+                  [class.btn-secondary]="currentPage !== page"
+                  (click)="goToPage(page)">
+                  {{ page }}
+                </button>
+              }
+
+              <button 
+                class="btn btn-sm btn-secondary" 
+                (click)="nextPage()"
+                [disabled]="currentPage === totalPages">
+                Next
+              </button>
+            </div>
+          }
         }
       </div>
     }
@@ -38,181 +108,78 @@
           ← Back to List
         </button>
 
-        <h3>{{ selectedEmployee.Name || selectedEmployee.name }}</h3>
+        <h3>{{ selectedEmployee.name }}</h3>
+        <p class="employee-position-detail">{{ selectedEmployee.positionName }}</p>
 
-        <!-- Pie Chart Stats -->
-        <div class="stats-pie">
-          <div class="pie-chart">
-            <div class="stat-item">
-              <span class="stat-label">Present:</span>
-              <span class="stat-value present">{{ employeeStats.presentDays }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Absent:</span>
-              <span class="stat-value absent">{{ employeeStats.absentDays }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Late:</span>
-              <span class="stat-value late">{{ employeeStats.lateDays }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">On Leave:</span>
-              <span class="stat-value leave">{{ employeeStats.leaveDays }}</span>
-            </div>
+        <!-- Stats Summary -->
+        <div class="stats-summary">
+          <div class="stat-card stat-present">
+            <div class="stat-label">Present Days</div>
+            <div class="stat-value">{{ employeeStats.presentDays }}</div>
+          </div>
+          <div class="stat-card stat-late">
+            <div class="stat-label">Late Days</div>
+            <div class="stat-value">{{ employeeStats.lateDays }}</div>
+          </div>
+          <div class="stat-card stat-absent">
+            <div class="stat-label">Absent Days</div>
+            <div class="stat-value">{{ employeeStats.absentDays }}</div>
+          </div>
+          <div class="stat-card stat-leave">
+            <div class="stat-label">Leave Days</div>
+            <div class="stat-value">{{ employeeStats.leaveDays }}</div>
           </div>
         </div>
 
         <!-- Attendance Records -->
         <div class="attendance-records">
           <h4>Attendance Records</h4>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Clock In</th>
-                <th>Clock Out</th>
-                <th>Status</th>
-                <th>Daily Report</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (record of employeeAttendance; track record.attendanceId) {
-                <tr>
-                  <td>{{ formatDate(record.date) }}</td>
-                  <td>{{ formatTime(record.clockIn) }}</td>
-                  <td>{{ formatTime(record.clockOut) }}</td>
-                  <td>
-                    <span class="status-badge" [ngClass]="getStatusClass(record.status)">
-                      {{ record.status }}
-                    </span>
-                  </td>
-                  <td>{{ record.dailyReport || '-' }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
+          
+          @if (employeeAttendance.length === 0) {
+            <div class="no-data">No attendance records found for this period</div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Clock In</th>
+                    <th>Clock Out</th>
+                    <th>Work Mode</th>
+                    <th>Status</th>
+                    <th>Daily Report</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (record of employeeAttendance; track record.attendanceId) {
+                    <tr>
+                      <td>{{ formatDate(record.date) }}</td>
+                      <td>{{ formatTime(record.clockIn) }}</td>
+                      <td>{{ formatTime(record.clockOut) }}</td>
+                      <td>{{ record.workMode || '-' }}</td>
+                      <td>
+                        <span class="status-badge" [ngClass]="getStatusClass(record.status)">
+                          {{ record.status }}
+                        </span>
+                      </td>
+                      <td class="daily-report-cell">
+                        {{ record.dailyReport || '-' }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
         </div>
       </div>
-    }
-
-    <!-- Pending Leave Requests -->
-    @if (pendingLeaves.length > 0 && !selectedEmployee) {
-      <div class="pending-leaves">
-        <h3>Pending Leave Requests</h3>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Employee</th>
-              <th>Leave Type</th>
-              <th>Dates</th>
-              <th>Days</th>
-              <th>Reason</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (leave of pendingLeaves; track leave.leaveRequestId) {
-              <tr>
-                <td>{{ leave.employeeName }}</td>
-                <td>{{ leave.leaveTypeName }}</td>
-                <td>{{ formatDate(leave.startDate) }} - {{ formatDate(leave.endDate) }}</td>
-                <td>{{ leave.totalDays }}</td>
-                <td>{{ leave.reason }}</td>
-                <td>
-                  <button class="btn btn-sm btn-primary" (click)="openLeaveModal(leave)">
-                    Review
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+    } @else if (selectedEmployee && loading) {
+      <div class="loading">Loading employee details...</div>
     }
   }
 </div>
 
-<!-- Leave Review Modal -->
-@if (showLeaveModal && selectedLeave) {
-  <div class="modal-backdrop" (click)="!processingLeave && closeLeaveModal()"></div>
-  <div class="modal leave-review-modal">
-    <div class="modal-dialog" (click)="$event.stopPropagation()">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Review Leave Request</h5>
-          <button type="button" class="btn-close" (click)="closeLeaveModal()" [disabled]="processingLeave">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="leave-details">
-            <div class="detail-row">
-              <strong>Employee:</strong>
-              <span>{{ selectedLeave.employeeName }}</span>
-            </div>
-            <div class="detail-row">
-              <strong>Leave Type:</strong>
-              <span>{{ selectedLeave.leaveTypeName }}</span>
-            </div>
-            <div class="detail-row">
-              <strong>Start Date:</strong>
-              <span>{{ formatDate(selectedLeave.startDate) }}</span>
-            </div>
-            <div class="detail-row">
-              <strong>End Date:</strong>
-              <span>{{ formatDate(selectedLeave.endDate) }}</span>
-            </div>
-            <div class="detail-row">
-              <strong>Total Days:</strong>
-              <span>{{ selectedLeave.totalDays }}</span>
-            </div>
-            <div class="detail-row">
-              <strong>Reason:</strong>
-              <span>{{ selectedLeave.reason }}</span>
-            </div>
-          </div>
-          
-          <div class="form-group mt-3">
-            <label for="rejectionReason">Rejection Reason (Required only if rejecting):</label>
-            <textarea 
-              id="rejectionReason"
-              [(ngModel)]="rejectionReason" 
-              class="form-control" 
-              rows="3"
-              placeholder="Enter reason for rejection..."
-              [disabled]="processingLeave"></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button 
-            class="btn btn-secondary" 
-            (click)="closeLeaveModal()"
-            [disabled]="processingLeave">
-            Cancel
-          </button>
-          <button 
-            class="btn btn-danger" 
-            (click)="rejectLeave()"
-            [disabled]="processingLeave">
-            @if (processingLeave) {
-              <span class="spinner-border spinner-border-sm me-2"></span>
-            }
-            Reject
-          </button>
-          <button 
-            class="btn btn-success" 
-            (click)="approveLeave()"
-            [disabled]="processingLeave">
-            @if (processingLeave) {
-              <span class="spinner-border spinner-border-sm me-2"></span>
-            }
-            Approve
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- Email Notification Modal -->
+<!-- Message Modal -->
 <app-modal
   [show]="showModal"
   [title]="modalTitle"

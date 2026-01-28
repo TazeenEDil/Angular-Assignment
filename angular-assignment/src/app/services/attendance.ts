@@ -1,63 +1,66 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Attendance, AttendanceStats, RealTimeStats } from '../models/attendance.model';
+import { Attendance, AttendanceStats, AttendanceAlert } from '../models/attendance.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AttendanceService {
-  private apiUrl = 'http://localhost:5224/api/attendance'; 
+  private apiUrl = 'http://localhost:5224/api/attendance';
 
   constructor(private http: HttpClient) {}
 
-  clockIn(workMode: string): Observable<Attendance> {
-    return this.http.post<Attendance>(`${this.apiUrl}/clock-in`, { workMode });
+  // Get my own attendance (uses token, no employeeId needed)
+  getMyAttendance(startDate: string, endDate: string): Observable<Attendance[]> {
+    return this.http.get<Attendance[]>(`${this.apiUrl}/me`, {
+      params: { startDate, endDate }
+    });
   }
 
-  clockOut(): Observable<Attendance> {
-    return this.http.post<Attendance>(`${this.apiUrl}/clock-out`, {});
+  // Get my stats (uses token, no employeeId needed)
+  getMyStats(year: number, month: number): Observable<AttendanceStats> {
+    // Note: This endpoint might not exist yet, we'll need to create it
+    // For now, we'll get all attendance and calculate stats
+    return this.http.get<AttendanceStats>(`${this.apiUrl}/me/stats`, {
+      params: { 
+        year: year.toString(), 
+        month: month.toString() 
+      }
+    });
   }
 
-  startBreak(): Observable<Attendance> {
-    return this.http.post<Attendance>(`${this.apiUrl}/break/start`, {});
+  // Clock in/out methods (use token)
+  clockIn(workMode: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/clock-in`, { workMode });
   }
 
-  endBreak(): Observable<Attendance> {
-    return this.http.post<Attendance>(`${this.apiUrl}/break/end`, {});
+  clockOut(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/clock-out`, {});
   }
 
-  submitDailyReport(report: string): Observable<Attendance> {
-    return this.http.post<Attendance>(`${this.apiUrl}/daily-report`, { report });
+  startBreak(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/break/start`, {});
   }
 
-  getEmployeeAttendance(employeeId: number, startDate?: string, endDate?: string): Observable<Attendance[]> {
-    let params = new HttpParams();
-    if (startDate) params = params.set('startDate', startDate);
-    if (endDate) params = params.set('endDate', endDate);
-    
-    return this.http.get<Attendance[]>(`${this.apiUrl}/employee/${employeeId}`, { params });
+  endBreak(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/break/end`, {});
   }
 
-  getEmployeeStats(employeeId: number, year?: number, month?: number): Observable<AttendanceStats> {
-    let params = new HttpParams();
-    if (year) params = params.set('year', year.toString());
-    if (month) params = params.set('month', month.toString());
-    
-    return this.http.get<AttendanceStats>(`${this.apiUrl}/stats/${employeeId}`, { params });
+  submitDailyReport(report: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/daily-report`, { report });
   }
 
-  getRealTimeStats(date?: string): Observable<RealTimeStats> {
-    let params = new HttpParams();
-    if (date) params = params.set('date', date);
-    
-    return this.http.get<RealTimeStats>(`${this.apiUrl}/realtime`, { params });
+  // For admin only - specific employee by ID
+  getEmployeeAttendance(employeeId: number, startDate: string, endDate: string): Observable<Attendance[]> {
+    return this.http.get<Attendance[]>(`${this.apiUrl}/employee/${employeeId}`, {
+      params: { startDate, endDate }
+    });
   }
 
-  getReportSubmissionRate(date?: string): Observable<{ submissionRate: number }> {
-    let params = new HttpParams();
-    if (date) params = params.set('date', date);
-    
-    return this.http.get<{ submissionRate: number }>(`${this.apiUrl}/report-submission-rate`, { params });
+  getEmployeeStats(employeeId: number, year: number, month: number): Observable<AttendanceStats> {
+    return this.http.get<AttendanceStats>(`${this.apiUrl}/stats/${employeeId}`, {
+      params: { year: year.toString(), month: month.toString() }
+    });
   }
 }
