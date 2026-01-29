@@ -11,6 +11,12 @@
           <span class="user-role" [class.admin]="isAdmin">{{ userRole }}</span>
         </div>
         
+        @if (!isAdmin) {
+          <button class="btn btn-profile" (click)="navigateToProfile()">
+            <span class="icon">👤</span> My Profile
+          </button>
+        }
+        
         <button class="btn btn-logout" (click)="logout()">
           <span class="icon">🚪</span> Logout
         </button>

@@ -1,0 +1,116 @@
+<div class="leave-container">
+  <h2 class="page-title">Leave Management</h2>
+
+  @if (loading) {
+    <div class="loading">Loading...</div>
+  } @else {
+    <!-- Leave Request Section -->
+    <div class="leave-section">
+      <div class="section-header">
+        <h3>My Leave Requests</h3>
+        <button class="btn btn-primary" (click)="openLeaveModal()">Request Leave</button>
+      </div>
+      
+      @if (myLeaveRequests.length > 0) {
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Leave Type</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Days</th>
+              <th>Status</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (request of myLeaveRequests; track request.leaveRequestId) {
+              <tr>
+                <td>{{ request.leaveTypeName }}</td>
+                <td>{{ formatDate(request.startDate) }}</td>
+                <td>{{ formatDate(request.endDate) }}</td>
+                <td>{{ request.totalDays }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="getLeaveStatusClass(request.status)">
+                    {{ request.status }}
+                  </span>
+                </td>
+                <td>{{ request.reason }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="text-muted">No leave requests found</p>
+      }
+    </div>
+
+    <!-- Available Leave Types -->
+    <div class="leave-types-section">
+      <h3>Available Leave Types</h3>
+      @if (leaveTypes.length > 0) {
+        <div class="leave-types-grid">
+          @for (type of leaveTypes; track type.leaveTypeId) {
+            <div class="leave-type-card">
+              <h4>{{ type.name }}</h4>
+              <p class="leave-days">{{ type.maxDaysPerYear }} days per year</p>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-muted">No leave types available</p>
+      }
+    </div>
+  }
+</div>
+
+<!-- Leave Request Modal -->
+@if (showLeaveModal) {
+  <div class="modal-backdrop" (click)="closeLeaveModal()"></div>
+  <div class="modal">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Request Leave</h5>
+          <button type="button" class="btn-close" (click)="closeLeaveModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Leave Type:</label>
+            <select [(ngModel)]="leaveForm.leaveTypeId" class="form-control">
+              @for (type of leaveTypes; track type.leaveTypeId) {
+                <option [value]="type.leaveTypeId">
+                  {{ type.name }} ({{ type.maxDaysPerYear }} days/year)
+                </option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Start Date:</label>
+            <input type="date" [(ngModel)]="leaveForm.startDate" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>End Date:</label>
+            <input type="date" [(ngModel)]="leaveForm.endDate" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Reason:</label>
+            <textarea [(ngModel)]="leaveForm.reason" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeLeaveModal()">Cancel</button>
+          <button class="btn btn-primary" (click)="submitLeaveRequest()">Submit Request</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Message Modal -->
+<app-modal
+  [show]="showModal"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  (close)="closeModal()">
+</app-modal>

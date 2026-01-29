@@ -32,12 +32,28 @@ export class EmployeeDetails implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
+    
     if (id) {
-      this.loadEmployee(+id);
+      // Admin viewing a specific employee
+      const numId = +id;
+      if (isNaN(numId) || numId <= 0) {
+        this.modalTitle = 'Error';
+        this.modalMessage = 'Invalid Employee ID';
+        this.showModal = true;
+        return;
+      }
+      this.loadEmployee(numId);
     } else {
-      this.modalTitle = 'Error';
-      this.modalMessage = 'Invalid employee ID';
-      this.showModal = true;
+      // No ID in route
+      // - If Admin clicked 'My Profile', don't call /me (may be unauthorized) — redirect to employees list
+      // - Otherwise (Employee), load own profile
+      if (this.isAdmin) {
+        this.router.navigate(['/employees']);
+        return;
+      }
+
+      // Employee viewing their own profile
+      this.loadMyProfile();
     }
   }
 
@@ -53,6 +69,23 @@ export class EmployeeDetails implements OnInit {
         this.loading = false;
         this.modalTitle = 'Error';
         this.modalMessage = 'Failed to load employee details';
+        this.showModal = true;
+      }
+    });
+  }
+
+  loadMyProfile() {
+    this.loading = true;
+    this.empService.getMyProfile().subscribe({
+      next: data => {
+        this.employee = data;
+        this.loading = false;
+      },
+      error: err => {
+        console.error('Failed to load profile:', err);
+        this.loading = false;
+        this.modalTitle = 'Error';
+        this.modalMessage = 'Failed to load your profile';
         this.showModal = true;
       }
     });

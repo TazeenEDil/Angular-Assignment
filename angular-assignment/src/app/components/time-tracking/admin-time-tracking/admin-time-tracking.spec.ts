@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EmployeeList } from './employee-list';
+import { AdminTimeTracking } from './admin-time-tracking';
 
-describe('EmployeeList', () => {
-  let component: EmployeeList;
-  let fixture: ComponentFixture<EmployeeList>;
+describe('AdminTimeTracking', () => {
+  let component: AdminTimeTracking;
+  let fixture: ComponentFixture<AdminTimeTracking>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EmployeeList]
+      imports: [AdminTimeTracking]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EmployeeList);
+    fixture = TestBed.createComponent(AdminTimeTracking);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

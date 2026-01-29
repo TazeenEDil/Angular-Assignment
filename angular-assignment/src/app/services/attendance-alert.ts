@@ -7,7 +7,7 @@ import { AttendanceAlert } from '../models/attendance.model';
   providedIn: 'root'
 })
 export class AttendanceAlertService {
-  private apiUrl = 'http://localhost:5224/api/attendancealerts';
+  private apiUrl = 'http://localhost:5224/api/AttendanceAlerts';
 
   constructor(private http: HttpClient) {}
 
@@ -15,11 +15,7 @@ export class AttendanceAlertService {
     return this.http.get<AttendanceAlert[]>(`${this.apiUrl}/my-alerts`);
   }
 
-  createAlert(alert: { employeeId: number; alertType: string; message: string }): Observable<AttendanceAlert> {
-    return this.http.post<AttendanceAlert>(this.apiUrl, alert);
-  }
-
-  markAlertAsRead(id: number): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/${id}/read`, {});
+  markAlertAsRead(alertId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${alertId}/read`, {});
   }
 }

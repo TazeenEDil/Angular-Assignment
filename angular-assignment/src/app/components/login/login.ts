@@ -43,6 +43,10 @@ export class Login {
     this.authService.login(this.email, this.password).subscribe({
       next: (res: LoginResponse) => {
         this.loading = false;
+        
+        // ✅ DEBUG: Check token claims
+        this.authService.debugEmployeeIdExtraction();
+        
         this.router.navigate(['/home'], { replaceUrl: true });
       },
       error: (err) => {

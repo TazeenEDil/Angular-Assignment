@@ -29,12 +29,28 @@
           </a>
         </li>
         
+        <!-- Time Tracking - Visible to both Admin and Employee -->
+        <li class="nav-item" [class.active]="isActive('/check-in-out')">
+          <a (click)="navigateToTimeTracking()" class="nav-link">
+            <span class="nav-icon">⏰</span>
+            <span class="nav-text">Time Tracking</span>
+          </a>
+        </li>
+        
         <!-- Attendance - Visible to both Admin and Employee -->
         <li class="nav-item" [class.active]="isActive('/attendance')">
            <a (click)="navigateToAttendance()" class="nav-link">
              <span class="nav-icon">📅</span>
              <span class="nav-text">Attendance</span>
            </a>
+        </li>
+        
+        <!-- Leave Requests - Visible to both Admin and Employee -->
+        <li class="nav-item" [class.active]="isActive('/leave-requests')">
+          <a (click)="navigateToLeaveRequests()" class="nav-link">
+            <span class="nav-icon">🏖️</span>
+            <span class="nav-text">Leave Requests</span>
+          </a>
         </li>
       </ul>
     </nav>

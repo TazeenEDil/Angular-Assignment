@@ -41,4 +41,8 @@ export class Header {
   navigateToHome() {
     this.router.navigate(['/home']);
   }
+
+  navigateToProfile() {
+    this.router.navigate(['/employee']);
+  }
 }

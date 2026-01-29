@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 
 interface LoginResponse {
   token: string;
@@ -9,6 +10,17 @@ interface LoginResponse {
   name: string;
   role: string;
   expiresAt: Date;
+}
+
+interface DecodedToken {
+  sub?: string;
+  email?: string;
+  name?: string;
+  nameid?: string;
+  EmployeeId?: string;
+  role?: string | string[];
+  exp?: number;
+  iat?: number;
 }
 
 @Injectable({
@@ -40,8 +52,11 @@ export class AuthService {
       const token = this.getToken();
       const role = this.getUserRole();
       
-      console.log('📦 Token from localStorage:', token ? 'EXISTS' : 'NULL');
-      console.log('👤 Role from localStorage:', role || 'NONE');
+      console.log('📦 Initializing from localStorage:');
+      console.log('   - Token exists:', token ? 'YES' : 'NO');
+      console.log('   - Token length:', token?.length || 0);
+      console.log('   - Role:', role || 'NONE');
+      console.log('   - Email:', this.getUserEmail() || 'NONE');
 
       if (token) {
         console.log('✅ User is authenticated (token found)');
@@ -61,22 +76,58 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
-    console.log('🔐 Login attempt for:', email);
+    console.log('🔐 =========================');
+    console.log('🔐 LOGIN ATTEMPT');
+    console.log('🔐 =========================');
+    console.log('📧 Email:', email);
+    console.log('🔗 API URL:', `${this.apiUrl}/auth/login`);
     
     return this.http
       .post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
         tap(response => {
+          console.log('📥 =========================');
+          console.log('📥 LOGIN RESPONSE RECEIVED');
+          console.log('📥 =========================');
+          console.log('Response:', response);
+          
           if (response && response.token) {
-            console.log('✅ Login successful');
-            console.log('📝 Saving token and user info');
+            console.log('✅ Login successful - Processing response');
+            console.log('📝 Token length:', response.token.length);
+            console.log('📝 Token preview:', response.token.substring(0, 50) + '...');
+            console.log('📝 Role:', response.role);
+            console.log('📝 Email:', response.email);
+            console.log('📝 Name:', response.name);
             
+            console.log('💾 Storing credentials in localStorage...');
             this.setToken(response.token);
             this.setUserInfo(response.email, response.name, response.role);
+            
+            console.log('🔄 Updating BehaviorSubjects...');
             this.isAuthenticatedSubject.next(true);
             this.userRoleSubject.next(response.role);
             
-            console.log('✅ Auth state updated');
+            // Verify storage immediately
+            console.log('✅ =========================');
+            console.log('✅ VERIFICATION');
+            console.log('✅ =========================');
+            const storedToken = localStorage.getItem(this.tokenKey);
+            const storedRole = localStorage.getItem(this.userRoleKey);
+            const storedEmail = localStorage.getItem(this.userEmailKey);
+            const storedName = localStorage.getItem(this.userNameKey);
+            
+            console.log('Token stored:', !!storedToken, '| Length:', storedToken?.length || 0);
+            console.log('Role stored:', storedRole || 'NOT FOUND');
+            console.log('Email stored:', storedEmail || 'NOT FOUND');
+            console.log('Name stored:', storedName || 'NOT FOUND');
+            
+            console.log('🎯 getToken() returns:', !!this.getToken());
+            console.log('🎯 getUserRole() returns:', this.getUserRole());
+            console.log('🎯 isLoggedIn() returns:', this.isLoggedIn());
+            console.log('✅ Auth state fully updated');
+          } else {
+            console.error('❌ Invalid response - no token received');
+            console.error('Response:', response);
           }
         })
       );
@@ -90,33 +141,48 @@ export class AuthService {
     role: string;
     positionId?: number;
   }): Observable<any> {
+    console.log('📝 Registration attempt for:', data.email);
     return this.http.post(`${this.apiUrl}/auth/register`, data);
   }
 
   logout(): void {
-    console.log('🚪 Logging out');
+    console.log('🚪 =========================');
+    console.log('🚪 LOGGING OUT');
+    console.log('🚪 =========================');
     
     if (this.isBrowser()) {
+      console.log('🗑️ Removing localStorage items...');
       localStorage.removeItem(this.tokenKey);
       localStorage.removeItem(this.userRoleKey);
       localStorage.removeItem(this.userEmailKey);
       localStorage.removeItem(this.userNameKey);
+      console.log('✅ LocalStorage cleared');
     }
 
+    console.log('🔄 Updating BehaviorSubjects to false...');
     this.isAuthenticatedSubject.next(false);
     this.userRoleSubject.next('');
 
+    console.log('🔀 Navigating to login page...');
     this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   getToken(): string | null {
-    if (!this.isBrowser()) return null;
-    return localStorage.getItem(this.tokenKey);
+    if (!this.isBrowser()) {
+      console.log('⚠️ Not in browser environment');
+      return null;
+    }
+    const token = localStorage.getItem(this.tokenKey);
+    if (!token) {
+      console.log('⚠️ getToken(): No token found in localStorage');
+    }
+    return token;
   }
 
   getUserRole(): string {
     if (!this.isBrowser()) return '';
-    return localStorage.getItem(this.userRoleKey) || '';
+    const role = localStorage.getItem(this.userRoleKey) || '';
+    return role;
   }
 
   getUserEmail(): string {
@@ -132,7 +198,6 @@ export class AuthService {
   isAdmin(): boolean {
     const role = this.getUserRole();
     const isAdminUser = role === 'Admin';
-    console.log('🔍 isAdmin check - Role:', role, 'Result:', isAdminUser);
     return isAdminUser;
   }
 
@@ -140,22 +205,23 @@ export class AuthService {
     return this.getUserRole() === 'Employee';
   }
 
-  // 🔥 FIXED: Now checks token existence, not just BehaviorSubject
   isLoggedIn(): boolean {
     const token = this.getToken();
     const loggedIn = !!token;
     
-    console.log('🔍 isLoggedIn check');
-    console.log('  - Token exists:', !!token);
-    console.log('  - Result:', loggedIn);
+    console.log('🔍 isLoggedIn() check:');
+    console.log('   - Token exists:', !!token);
+    console.log('   - Token length:', token?.length || 0);
+    console.log('   - Result:', loggedIn);
     
     // Update BehaviorSubject if it's out of sync
     if (this.isAuthenticatedSubject.value !== loggedIn) {
-      console.log('⚠️ Syncing BehaviorSubject to match token state');
+      console.log('⚠️ BehaviorSubject out of sync - updating');
       this.isAuthenticatedSubject.next(loggedIn);
       
       if (loggedIn) {
         const role = this.getUserRole();
+        console.log('🔄 Updating role BehaviorSubject to:', role);
         this.userRoleSubject.next(role);
       }
     }
@@ -164,20 +230,190 @@ export class AuthService {
   }
 
   private setToken(token: string): void {
-    if (!this.isBrowser()) return;
-    console.log('💾 Saving token to localStorage');
+    if (!this.isBrowser()) {
+      console.error('❌ Cannot set token - not in browser');
+      return;
+    }
+    console.log('💾 setToken() - Saving to localStorage with key:', this.tokenKey);
+    console.log('   Token length:', token.length);
     localStorage.setItem(this.tokenKey, token);
+    
+    // Verify immediately
+    const verified = localStorage.getItem(this.tokenKey);
+    console.log('✅ Verification: Token saved?', !!verified);
   }
 
   private setUserInfo(email: string, name: string, role: string): void {
-    if (!this.isBrowser()) return;
-    console.log('💾 Saving user info - Role:', role);
+    if (!this.isBrowser()) {
+      console.error('❌ Cannot set user info - not in browser');
+      return;
+    }
+    console.log('💾 setUserInfo() - Saving user data:');
+    console.log('   Email:', email);
+    console.log('   Name:', name);
+    console.log('   Role:', role);
+    
     localStorage.setItem(this.userEmailKey, email);
     localStorage.setItem(this.userNameKey, name);
     localStorage.setItem(this.userRoleKey, role);
+    
+    // Verify immediately
+    console.log('✅ Verification:');
+    console.log('   Email saved?', !!localStorage.getItem(this.userEmailKey));
+    console.log('   Name saved?', !!localStorage.getItem(this.userNameKey));
+    console.log('   Role saved?', !!localStorage.getItem(this.userRoleKey));
   }
 
   private isBrowser(): boolean {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+  }
+
+  // Debug helper method
+  debugAuthState(): void {
+    console.log('🐛 =========================');
+    console.log('🐛 AUTH STATE DEBUG');
+    console.log('🐛 =========================');
+    console.log('Token exists:', !!this.getToken());
+    console.log('Token length:', this.getToken()?.length || 0);
+    console.log('Token preview:', this.getToken()?.substring(0, 50) + '...' || 'NO TOKEN');
+    console.log('Role:', this.getUserRole());
+    console.log('Email:', this.getUserEmail());
+    console.log('Name:', this.getUserName());
+    console.log('isLoggedIn():', this.isLoggedIn());
+    console.log('isAdmin():', this.isAdmin());
+    console.log('isEmployee():', this.isEmployee());
+    console.log('BehaviorSubject isAuthenticated:', this.isAuthenticatedSubject.value);
+    console.log('BehaviorSubject userRole:', this.userRoleSubject.value);
+    console.log('=========================');
+  }
+
+  /**
+   * ✅ NEW: Extract EmployeeId from JWT token claims
+   * Backend adds "EmployeeId" claim in GenerateJwtToken
+   */
+  getEmployeeId(): number | null {
+    if (!this.isBrowser()) {
+      console.warn('⚠️ Not in browser environment');
+      return null;
+    }
+
+    const token = this.getToken();
+    if (!token) {
+      console.warn('⚠️ No token found');
+      return null;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      
+      if (decoded.EmployeeId) {
+        const employeeId = parseInt(decoded.EmployeeId, 10);
+        console.log('✅ EmployeeId from token:', employeeId);
+        return employeeId;
+      }
+      
+      console.warn('⚠️ EmployeeId claim not found in token');
+      console.log('Token claims:', decoded);
+      return null;
+    } catch (error) {
+      console.error('❌ Error decoding token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * ✅ NEW: Extract UserId from JWT token (nameid claim)
+   */
+  getUserId(): number | null {
+    if (!this.isBrowser()) {
+      console.warn('⚠️ Not in browser environment');
+      return null;
+    }
+
+    const token = this.getToken();
+    if (!token) {
+      console.warn('⚠️ No token found');
+      return null;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      
+      if (decoded.nameid) {
+        const userId = parseInt(decoded.nameid, 10);
+        console.log('✅ UserId from token:', userId);
+        return userId;
+      }
+      
+      console.warn('⚠️ nameid claim not found in token');
+      return null;
+    } catch (error) {
+      console.error('❌ Error decoding token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * ✅ NEW: Debug helper to see all token claims
+   */
+  debugTokenClaims(): void {
+    const token = this.getToken();
+    if (!token) {
+      console.log('❌ No token found');
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      console.log('🔍 =========================');
+      console.log('🔍 TOKEN CLAIMS');
+      console.log('🔍 =========================');
+      console.log('Sub (email):', decoded.sub);
+      console.log('Email:', decoded.email);
+      console.log('Name:', decoded.name);
+      console.log('NameId (UserId):', decoded.nameid);
+      console.log('EmployeeId:', decoded.EmployeeId);
+      console.log('Role:', decoded.role);
+      console.log('Expires:', decoded.exp ? new Date(decoded.exp * 1000) : 'N/A');
+      console.log('Full decoded token:', decoded);
+      console.log('=========================');
+    } catch (error) {
+      console.error('❌ Error decoding token:', error);
+    }
+  }
+
+  /**
+   * ✅ Debug: Check what's actually in the token
+   */
+  debugEmployeeIdExtraction(): void {
+    const token = this.getToken();
+    if (!token) {
+      console.error('❌ NO TOKEN FOUND');
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      console.log('🔍 =========================');
+      console.log('🔍 TOKEN CLAIM DEBUG');
+      console.log('🔍 =========================');
+      console.log('Full token object:', decoded);
+      console.log('All keys:', Object.keys(decoded));
+      console.log('EmployeeId:', decoded.EmployeeId);
+      console.log('nameid:', decoded.nameid);
+      console.log('sub:', decoded.sub);
+      console.log('email:', decoded.email);
+      console.log('=========================');
+      
+      // Check if backend returned EmployeeId with different casing
+      const allKeys = Object.keys(decoded);
+      const employeeIdKey = allKeys.find(k => k.toLowerCase() === 'employeeid');
+      console.log('🔎 Found key (case-insensitive):', employeeIdKey);
+      if (employeeIdKey) {
+        console.log(`Value: ${(decoded as any)[employeeIdKey]}`);
+      }
+    } catch (error) {
+      console.error('❌ Error decoding:', error);
+    }
   }
 }

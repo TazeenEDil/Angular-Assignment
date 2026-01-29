@@ -42,7 +42,14 @@ export class EmployeeUpdate implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.employeeId = +id;
+      const numId = +id;
+      if (isNaN(numId) || numId <= 0) {
+        this.modalTitle = 'Error';
+        this.modalMessage = 'Invalid employee ID';
+        this.showModal = true;
+        return;
+      }
+      this.employeeId = numId;
       this.loadPositions();
       this.loadEmployee();
     } else {
