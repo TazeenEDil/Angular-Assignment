@@ -4,6 +4,7 @@
   @if (loading) {
     <div class="loading">Loading...</div>
   } @else {
+
     <!-- Stats Section -->
     @if (stats) {
       <div class="stats-grid">
@@ -11,22 +12,27 @@
           <div class="stat-value">{{ stats.attendancePercentage.toFixed(1) }}%</div>
           <div class="stat-label">Attendance Rate</div>
         </div>
+
         <div class="stat-card">
           <div class="stat-value">{{ stats.presentDays }}</div>
           <div class="stat-label">Present Days</div>
         </div>
+
         <div class="stat-card">
           <div class="stat-value">{{ stats.absentDays }}</div>
           <div class="stat-label">Absent Days</div>
         </div>
+
         <div class="stat-card">
           <div class="stat-value">{{ stats.lateDays }}</div>
           <div class="stat-label">Late Days</div>
         </div>
+
         <div class="stat-card">
           <div class="stat-value">{{ stats.leaveDays }}</div>
           <div class="stat-label">Leave Days</div>
         </div>
+
         <div class="stat-card">
           <div class="stat-value">{{ stats.reportSubmissionRate.toFixed(1) }}%</div>
           <div class="stat-label">Report Submission</div>
@@ -34,27 +40,10 @@
       </div>
     }
 
-    <!-- Alerts -->
-    @if (alerts.length > 0) {
-      <div class="alerts-section">
-        <h3>Alerts</h3>
-        <div class="alerts-list">
-          @for (alert of alerts; track alert.alertId) {
-            <div class="alert-item" [class.unread]="!alert.isRead" (click)="markAlertAsRead(alert.alertId)">
-              <div class="alert-header">
-                <span class="alert-type">{{ alert.alertType }}</span>
-                <span class="alert-date">{{ formatDate(alert.alertDate) }}</span>
-              </div>
-              <p class="alert-message">{{ alert.message }}</p>
-            </div>
-          }
-        </div>
-      </div>
-    }
-
     <!-- Attendance History -->
     <div class="history-section">
       <h3>Attendance History (Last 30 Days)</h3>
+
       @if (attendanceRecords.length > 0) {
         <table class="table">
           <thead>
@@ -68,6 +57,7 @@
               <th>Report</th>
             </tr>
           </thead>
+
           <tbody>
             @for (record of attendanceRecords; track record.attendanceId) {
               <tr>
@@ -77,7 +67,9 @@
                 <td>{{ record.workMode }}</td>
                 <td>{{ formatDuration(record.totalWorkHours) }}</td>
                 <td>
-                  <span class="status-badge" [ngClass]="getStatusClass(record.status)">
+                  <span
+                    class="status-badge"
+                    [ngClass]="getStatusClass(record.status)">
                     {{ record.status }}
                   </span>
                 </td>

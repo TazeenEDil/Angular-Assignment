@@ -2,6 +2,7 @@
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
+  margin-left: 260px;
 }
 
 .page-title {
@@ -145,4 +146,11 @@
   border-color: #80bdff;
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+@media (max-width: 768px) {
+  .admin-time-tracking-container {
+    margin-left: 0;
+    padding: 15px;
+  }
 }

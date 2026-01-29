@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { LeaveService } from '../../../services/leave';
 import { Modal } from '../../modal/modal';
 import { LeaveType, LeaveRequest } from '../../../models/leave.model';
@@ -14,6 +15,7 @@ import { LeaveType, LeaveRequest } from '../../../models/leave.model';
 })
 export class EmployeeLeave implements OnInit {
   private leaveService = inject(LeaveService);
+  private cdr = inject(ChangeDetectorRef);
 
   leaveTypes: LeaveType[] = [];
   myLeaveRequests: LeaveRequest[] = [];
@@ -29,60 +31,49 @@ export class EmployeeLeave implements OnInit {
   showModal = false;
   modalTitle = '';
   modalMessage = '';
-  showCancelButton = false;
   
   loading = false;
   submitting = false;
 
   ngOnInit() {
-    console.log('Employee leave component initialized');
+    console.log('🚀 Employee Leave Component Init');
     this.loadLeaveData();
   }
 
-  loadLeaveData() {
+  async loadLeaveData() {
     this.loading = true;
+    console.log('📥 Loading leave data...');
     
-    // Load leave types
-    this.leaveService.getLeaveTypes().subscribe({
-      next: (types) => {
-        this.leaveTypes = types || [];
-        console.log('Leave types loaded:', this.leaveTypes.length);
-        
-        // Load my leave requests
-        this.leaveService.getMyLeaveRequests().subscribe({
-          next: (requests) => {
-            this.myLeaveRequests = requests || [];
-            this.loading = false;
-          },
-          error: (error) => {
-            console.error('Failed to load leave requests:', error);
-            if (error.status === 401) {
-              this.showErrorModal('Session expired. Please login again.');
-            } else if (error.status === 403) {
-              this.showErrorModal('You do not have permission to view leave requests.');
-            } else {
-              this.myLeaveRequests = [];
-              console.log('No leave requests found (this may be normal)');
-            }
-            this.loading = false;
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Failed to load leave types:', error);
-        if (error.status === 401 || error.status === 403) {
-          this.showErrorModal('Authentication error. Please login again.');
-        } else {
-          this.showErrorModal('Failed to load leave types. Please try again.');
-        }
-        this.loading = false;
+    try {
+      // Load leave types
+      console.log('🏖️ Loading leave types...');
+      this.leaveTypes = await firstValueFrom(this.leaveService.getLeaveTypes()) || [];
+      console.log('✅ Leave types loaded:', this.leaveTypes.length);
+      
+      // Load my leave requests
+      console.log('📝 Loading my leave requests...');
+      this.myLeaveRequests = await firstValueFrom(this.leaveService.getMyLeaveRequests()) || [];
+      console.log('✅ Leave requests loaded:', this.myLeaveRequests.length);
+      
+    } catch (error: any) {
+      console.error('❌ Error loading leave data:', error);
+      
+      if (error.status === 401) {
+        this.showMessage('Authentication Error', 'Please log out and log in again.');
+      } else {
+        this.showMessage('Error', 'Failed to load leave data: ' + (error.error?.message || error.message));
       }
-    });
+    } finally {
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
   }
 
   openLeaveModal() {
+    console.log('📝 Opening leave modal');
+    
     if (this.leaveTypes.length === 0) {
-      this.showErrorModal('No leave types available. Contact HR.');
+      this.showMessage('Error', 'No leave types available. Please contact HR.');
       return;
     }
     
@@ -93,9 +84,12 @@ export class EmployeeLeave implements OnInit {
       endDate: '',
       reason: ''
     };
+    
+    this.cdr.detectChanges();
   }
 
   closeLeaveModal() {
+    console.log('🚪 Closing leave modal');
     this.showLeaveModal = false;
     this.leaveForm = {
       leaveTypeId: 0,
@@ -103,59 +97,112 @@ export class EmployeeLeave implements OnInit {
       endDate: '',
       reason: ''
     };
+    this.cdr.detectChanges();
   }
 
-  submitLeaveRequest() {
+  async submitLeaveRequest() {
+    console.log('📤 Submitting leave request');
+    
     // Validate form
     if (!this.leaveForm.leaveTypeId || this.leaveForm.leaveTypeId === 0) {
-      this.showErrorModal('Please select a leave type');
+      this.showMessage('Validation Error', 'Please select a leave type');
       return;
     }
     
     if (!this.leaveForm.startDate) {
-      this.showErrorModal('Please select a start date');
+      this.showMessage('Validation Error', 'Please select a start date');
       return;
     }
     
     if (!this.leaveForm.endDate) {
-      this.showErrorModal('Please select an end date');
+      this.showMessage('Validation Error', 'Please select an end date');
       return;
     }
     
     if (!this.leaveForm.reason || !this.leaveForm.reason.trim()) {
-      this.showErrorModal('Please provide a reason for leave');
+      this.showMessage('Validation Error', 'Please provide a reason for leave');
       return;
     }
     
     // Validate dates
     const startDate = new Date(this.leaveForm.startDate);
     const endDate = new Date(this.leaveForm.endDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (startDate < today) {
+      this.showMessage('Validation Error', 'Start date cannot be in the past');
+      return;
+    }
     
     if (startDate > endDate) {
-      this.showErrorModal('End date must be after start date');
+      this.showMessage('Validation Error', 'End date must be after or equal to start date');
       return;
     }
     
     this.submitting = true;
-    this.leaveService.createLeaveRequest(this.leaveForm).subscribe({
-      next: () => {
-        this.showSuccessModal('Leave request submitted successfully!');
-        this.closeLeaveModal();
-        this.loadLeaveData();
-        this.submitting = false;
-      },
-      error: (error) => {
-        console.error('Failed to submit leave request:', error);
-        if (error.status === 401) {
-          this.showErrorModal('Session expired. Please login again.');
-        } else if (error.status === 403) {
-          this.showErrorModal('You do not have permission to create leave requests.');
-        } else {
-          this.showErrorModal(error.error?.message || 'Failed to submit leave request. Please try again.');
-        }
-        this.submitting = false;
+    
+    try {
+      console.log('🚀 Calling leave service...');
+      console.log('   Leave Type ID:', this.leaveForm.leaveTypeId);
+      console.log('   Start Date:', this.leaveForm.startDate);
+      console.log('   End Date:', this.leaveForm.endDate);
+      console.log('   Reason:', this.leaveForm.reason);
+      
+      await firstValueFrom(this.leaveService.createLeaveRequest(this.leaveForm));
+      
+      console.log('✅ Leave request created successfully');
+      
+      this.closeLeaveModal();
+      
+      this.showMessage(
+        'Success ✓', 
+        'Your leave request has been submitted successfully and is pending approval from management.'
+      );
+      
+      await this.loadLeaveData();
+      
+    } catch (error: any) {
+      console.error('❌ Error submitting leave request:', error);
+      
+      // Extract error message
+      let errorMessage = 'Failed to submit leave request';
+      
+      if (error.status === 401) {
+        errorMessage = 'Your session has expired. Please log out and log in again.';
+        this.showMessage('Authentication Error', errorMessage);
+        return;
       }
-    });
+      
+      // ✅ Check for leave balance errors
+      if (error.error?.message) {
+        errorMessage = error.error.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // ✅ Detect leave limit errors and show appropriate modal
+      const lowerError = errorMessage.toLowerCase();
+      
+      if (lowerError.includes('exceeds') || 
+          lowerError.includes('remaining') || 
+          lowerError.includes('exhausted') ||
+          lowerError.includes('allotment') ||
+          lowerError.includes('left')) {
+        
+        console.warn('⚠️ Leave balance exceeded:', errorMessage);
+        
+        // Show error in modal with red styling
+        this.showMessage('Leave Balance Exceeded ⚠️', errorMessage);
+      } else {
+        // Other errors
+        this.showMessage('Error', errorMessage);
+      }
+      
+    } finally {
+      this.submitting = false;
+      this.cdr.detectChanges();
+    }
   }
 
   formatDate(date: string): string {
@@ -175,22 +222,17 @@ export class EmployeeLeave implements OnInit {
     }
   }
 
-  showSuccessModal(message: string) {
-    this.modalTitle = 'Success';
+  showMessage(title: string, message: string) {
+    this.modalTitle = title;
     this.modalMessage = message;
-    this.showCancelButton = false;
     this.showModal = true;
-  }
-
-  showErrorModal(message: string) {
-    this.modalTitle = 'Error';
-    this.modalMessage = message;
-    this.showCancelButton = false;
-    this.showModal = true;
+    this.cdr.detectChanges();
   }
 
   closeModal() {
     this.showModal = false;
-    this.showCancelButton = false;
+    this.modalTitle = '';
+    this.modalMessage = '';
+    this.cdr.detectChanges();
   }
 }

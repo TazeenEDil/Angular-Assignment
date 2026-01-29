@@ -31,7 +31,7 @@ export interface PaginatedResponse<T> {
 })
 export class FileStorageService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5224/api/filestorage';
+  private apiUrl = 'http://localhost:5224/api/FileStorage';
 
   getAllFiles(pageNumber: number = 1, pageSize: number = 10): Observable<PaginatedResponse<EmployeeFile>> {
     const params = new HttpParams()

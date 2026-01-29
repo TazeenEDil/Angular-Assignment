@@ -284,3 +284,55 @@
     padding: 8px;
   }
 }
+
+/* ===============================
+   LEAVE TYPES → STAT CARDS STYLE
+   (Same as Attendance)
+   =============================== */
+
+.leave-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.leave-type-card {
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.leave-type-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.leave-type-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+}
+
+.leave-type-card h4 {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.leave-days {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #7f8c8d;
+}

@@ -2,6 +2,7 @@
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
+  margin-left: 260px;
 }
 
 .page-title {
@@ -398,6 +399,7 @@
 @media (max-width: 768px) {
   .admin-attendance-container {
     padding: 15px;
+    margin-left: 0;
   }
 
   .filters-section {

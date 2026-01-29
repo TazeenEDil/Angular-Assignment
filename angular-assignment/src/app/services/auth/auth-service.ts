@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 
 interface LoginResponse {
   token: string;
@@ -9,6 +10,17 @@ interface LoginResponse {
   name: string;
   role: string;
   expiresAt: Date;
+}
+
+interface DecodedToken {
+  sub?: string;
+  email?: string;
+  name?: string;
+  nameid?: string;
+  EmployeeId?: string;
+  role?: string | string[];
+  exp?: number;
+  iat?: number;
 }
 
 @Injectable({
@@ -273,5 +285,135 @@ export class AuthService {
     console.log('BehaviorSubject isAuthenticated:', this.isAuthenticatedSubject.value);
     console.log('BehaviorSubject userRole:', this.userRoleSubject.value);
     console.log('=========================');
+  }
+
+  /**
+   * ✅ NEW: Extract EmployeeId from JWT token claims
+   * Backend adds "EmployeeId" claim in GenerateJwtToken
+   */
+  getEmployeeId(): number | null {
+    if (!this.isBrowser()) {
+      console.warn('⚠️ Not in browser environment');
+      return null;
+    }
+
+    const token = this.getToken();
+    if (!token) {
+      console.warn('⚠️ No token found');
+      return null;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      
+      if (decoded.EmployeeId) {
+        const employeeId = parseInt(decoded.EmployeeId, 10);
+        console.log('✅ EmployeeId from token:', employeeId);
+        return employeeId;
+      }
+      
+      console.warn('⚠️ EmployeeId claim not found in token');
+      console.log('Token claims:', decoded);
+      return null;
+    } catch (error) {
+      console.error('❌ Error decoding token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * ✅ NEW: Extract UserId from JWT token (nameid claim)
+   */
+  getUserId(): number | null {
+    if (!this.isBrowser()) {
+      console.warn('⚠️ Not in browser environment');
+      return null;
+    }
+
+    const token = this.getToken();
+    if (!token) {
+      console.warn('⚠️ No token found');
+      return null;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      
+      if (decoded.nameid) {
+        const userId = parseInt(decoded.nameid, 10);
+        console.log('✅ UserId from token:', userId);
+        return userId;
+      }
+      
+      console.warn('⚠️ nameid claim not found in token');
+      return null;
+    } catch (error) {
+      console.error('❌ Error decoding token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * ✅ NEW: Debug helper to see all token claims
+   */
+  debugTokenClaims(): void {
+    const token = this.getToken();
+    if (!token) {
+      console.log('❌ No token found');
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      console.log('🔍 =========================');
+      console.log('🔍 TOKEN CLAIMS');
+      console.log('🔍 =========================');
+      console.log('Sub (email):', decoded.sub);
+      console.log('Email:', decoded.email);
+      console.log('Name:', decoded.name);
+      console.log('NameId (UserId):', decoded.nameid);
+      console.log('EmployeeId:', decoded.EmployeeId);
+      console.log('Role:', decoded.role);
+      console.log('Expires:', decoded.exp ? new Date(decoded.exp * 1000) : 'N/A');
+      console.log('Full decoded token:', decoded);
+      console.log('=========================');
+    } catch (error) {
+      console.error('❌ Error decoding token:', error);
+    }
+  }
+
+  /**
+   * ✅ Debug: Check what's actually in the token
+   */
+  debugEmployeeIdExtraction(): void {
+    const token = this.getToken();
+    if (!token) {
+      console.error('❌ NO TOKEN FOUND');
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      console.log('🔍 =========================');
+      console.log('🔍 TOKEN CLAIM DEBUG');
+      console.log('🔍 =========================');
+      console.log('Full token object:', decoded);
+      console.log('All keys:', Object.keys(decoded));
+      console.log('EmployeeId:', decoded.EmployeeId);
+      console.log('nameid:', decoded.nameid);
+      console.log('sub:', decoded.sub);
+      console.log('email:', decoded.email);
+      console.log('=========================');
+      
+      // Check if backend returned EmployeeId with different casing
+      const allKeys = Object.keys(decoded);
+      const employeeIdKey = allKeys.find(k => k.toLowerCase() === 'employeeid');
+      console.log('🔎 Found key (case-insensitive):', employeeIdKey);
+      if (employeeIdKey) {
+        console.log(`Value: ${(decoded as any)[employeeIdKey]}`);
+      }
+    } catch (error) {
+      console.error('❌ Error decoding:', error);
+    }
   }
 }

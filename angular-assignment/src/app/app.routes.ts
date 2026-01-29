@@ -43,6 +43,29 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard], 
     data: { roles: ['Admin'] } 
   },
+  // ============================================
+  // EMPLOYEE SPECIFIC ROUTES (must come BEFORE :id parameter routes)
+  // ============================================
+  { 
+    path: 'employee/check-in-out', 
+    component: CheckInOut,
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'employee/attendance', 
+    component: EmployeeAttendance,
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'employee/leave', 
+    component: EmployeeLeave,
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'employee', 
+    component: EmployeeDetails, 
+    canActivate: [authGuard] 
+  },
   { 
     path: 'employee/:id', 
     component: EmployeeDetails, 
@@ -89,11 +112,6 @@ export const routes: Routes = [
     component: CheckInOut,
     canActivate: [authGuard]
   },
-  { 
-    path: 'employee/check-in-out', 
-    component: CheckInOut,
-    canActivate: [authGuard]
-  },
   // Admin time tracking overview
   {
     path: 'time-tracking/admin',
@@ -117,11 +135,6 @@ export const routes: Routes = [
     component: EmployeeAttendance,
     canActivate: [authGuard]
   },
-  { 
-    path: 'employee/attendance', 
-    component: EmployeeAttendance,
-    canActivate: [authGuard]
-  },
   // Admin attendance management
   {
     path: 'attendance/admin',
@@ -142,11 +155,6 @@ export const routes: Routes = [
   // Employee leave requests
   { 
     path: 'leave-requests', 
-    component: EmployeeLeave,
-    canActivate: [authGuard]
-  },
-  { 
-    path: 'employee/leave', 
     component: EmployeeLeave,
     canActivate: [authGuard]
   },

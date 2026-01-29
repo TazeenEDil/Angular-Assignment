@@ -42,7 +42,7 @@ export interface PaginatedResponse<T> {
 })
 export class PositionService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5224/api/positions';
+  private apiUrl = 'http://localhost:5224/api/Positions';
 
   // Get all positions (for dropdowns) - Returns PositionDto[]
   getPositions(): Observable<PositionDto[]> {

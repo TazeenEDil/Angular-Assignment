@@ -48,10 +48,9 @@ export class AdminLeaveComponent implements OnInit {
       }
     } catch (error: any) {
       console.error('❌ Error loading pending leaves:', error);
-      console.error('  - Status:', error.status);
-      console.error('  - Error body:', error.error);
       this.pendingLeaves = [];
-      this.showMessage('Error', 'Failed to load pending leave requests: ' + (error.error?.message || error.message));
+      const errorMsg = error?.message || error?.error?.message || 'Unknown error occurred';
+      this.showMessage('Error', `Failed to load pending leave requests: ${errorMsg}`);
     } finally {
       this.loading = false;
       this.cdr.detectChanges();
@@ -99,15 +98,35 @@ export class AdminLeaveComponent implements OnInit {
       });
       
       this.showMessage(
-        'Leave Approved', 
-        `Leave request has been approved. An email notification has been sent to ${employeeName} dated ${approvalDate}.`
+        'Leave Approved ✓', 
+        `Leave request for ${employeeName} has been approved. 
+
+📧 An email notification has been sent to the employee on ${approvalDate}.`
       );
       
       await this.loadPendingLeaves();
       
     } catch (error: any) {
       console.error('❌ Error approving leave:', error);
-      this.showMessage('Error', error.error?.message || 'Failed to approve leave request');
+      
+      const errorMsg = error?.message || error?.error?.message || 'Failed to approve leave request';
+      
+      // Check if email failed but leave was approved
+      if (errorMsg.toLowerCase().includes('email failed') || 
+          errorMsg.toLowerCase().includes('but email') ||
+          errorMsg.toLowerCase().includes('has no email')) {
+        this.showMessage(
+          '⚠️ Partial Success', 
+          `Leave was APPROVED in the database, but email notification could not be sent to ${employeeName}.
+
+Error details: ${errorMsg}
+
+⚠️ Please manually notify the employee about their approved leave request.`
+        );
+        await this.loadPendingLeaves();
+      } else {
+        this.showMessage('Error', errorMsg);
+      }
     } finally {
       this.processingLeave = false;
       this.cdr.detectChanges();
@@ -150,14 +169,34 @@ export class AdminLeaveComponent implements OnInit {
       
       this.showMessage(
         'Leave Rejected', 
-        `Leave request has been rejected. An email notification has been sent to ${employeeName} dated ${rejectionDate}.`
+        `Leave request for ${employeeName} has been rejected. 
+
+📧 An email notification has been sent to the employee on ${rejectionDate}.`
       );
       
       await this.loadPendingLeaves();
       
     } catch (error: any) {
       console.error('❌ Error rejecting leave:', error);
-      this.showMessage('Error', error.error?.message || 'Failed to reject leave request');
+      
+      const errorMsg = error?.message || error?.error?.message || 'Failed to reject leave request';
+      
+      // Check if email failed but leave was rejected
+      if (errorMsg.toLowerCase().includes('email failed') || 
+          errorMsg.toLowerCase().includes('but email') ||
+          errorMsg.toLowerCase().includes('has no email')) {
+        this.showMessage(
+          '⚠️ Partial Success', 
+          `Leave was REJECTED in the database, but email notification could not be sent to ${employeeName}.
+
+Error details: ${errorMsg}
+
+⚠️ Please manually notify the employee about their rejected leave request.`
+        );
+        await this.loadPendingLeaves();
+      } else {
+        this.showMessage('Error', errorMsg);
+      }
     } finally {
       this.processingLeave = false;
       this.cdr.detectChanges();
