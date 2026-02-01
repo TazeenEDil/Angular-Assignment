@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 // These match your backend DTOs exactly
 export interface PositionDto {
@@ -42,7 +43,7 @@ export interface PaginatedResponse<T> {
 })
 export class PositionService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5224/api/Positions';
+  private apiUrl = `${environment.apiUrl}/Positions`;
 
   // Get all positions (for dropdowns) - Returns PositionDto[]
   getPositions(): Observable<PositionDto[]> {

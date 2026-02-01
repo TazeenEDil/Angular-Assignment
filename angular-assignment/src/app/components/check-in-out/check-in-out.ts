@@ -2,7 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { AttendanceService } from '../../services/attendance';
+import { AttendanceService } from '../../services/attendance-service';
 import { Modal } from '../modal/modal';
 import { Attendance } from '../../models/attendance.model';
 

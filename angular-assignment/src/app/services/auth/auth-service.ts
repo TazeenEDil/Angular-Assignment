@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../../environments/environment';
 
 interface LoginResponse {
   token: string;
@@ -30,7 +31,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private apiUrl = 'http://localhost:5224/api';
+  private apiUrl = environment.apiUrl;
   private tokenKey = 'jwt_token';
   private userRoleKey = 'user_role';
   private userEmailKey = 'user_email';

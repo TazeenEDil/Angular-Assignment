@@ -3,18 +3,20 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { LeaveType, LeaveRequest } from '../models/leave.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LeaveService {
-  private apiUrl = 'http://localhost:5224/api/Leave'; // ✅ Capitalized to match controller
+  private apiUrl = `${environment.apiUrl}/Leave`;
 
   constructor(private http: HttpClient) {}
 
   /**
    * Get all leave types
    */
+   
   getLeaveTypes(): Observable<LeaveType[]> {
     console.log('🔗 GET /api/Leave/types');
     return this.http.get<LeaveType[]>(`${this.apiUrl}/types`).pipe(

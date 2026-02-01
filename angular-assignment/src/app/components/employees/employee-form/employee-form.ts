@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { EmployeeService } from '../../../services/employee';
+import { EmployeeService } from '../../../services/employee-service';
 import { PositionService } from '../../../services/position-service';
 import { Modal } from '../../modal/modal';
 

@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FileStorageService, EmployeeFile } from '../../services/file-storage-service';
-import { EmployeeService } from '../../services/employee';
+import { EmployeeService } from '../../services/employee-service';
 import { AuthService } from '../../services/auth/auth-service';
 import { Modal } from '../modal/modal';
 

@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AttendanceAlert } from '../models/attendance.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
+  
 })
 export class AttendanceAlertService {
-  private apiUrl = 'http://localhost:5224/api/AttendanceAlerts';
+  private apiUrl = `${environment.apiUrl}/AttendanceAlerts`;
 
   constructor(private http: HttpClient) {}
 

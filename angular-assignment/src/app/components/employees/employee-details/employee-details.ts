@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { EmployeeService } from '../../../services/employee';
+import { EmployeeService } from '../../../services/employee-service';
 import { Employee } from '../../../models/employee.model';
 import { AuthService } from '../../../services/auth/auth-service';
 import { Modal } from '../../modal/modal';

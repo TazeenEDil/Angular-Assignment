@@ -2,7 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { LeaveService } from '../../../services/leave';
+import { LeaveService } from '../../../services/leave-service';
 import { Modal } from '../../modal/modal';
 import { LeaveType, LeaveRequest } from '../../../models/leave.model';
 

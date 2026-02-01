@@ -3,6 +3,13 @@
     <h2>Employee Management System</h2>
     <p class="subtitle">Sign in to your account</p>
 
+    <!-- ✅ ERROR ALERT (shows above form) -->
+    @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+    }
+
     <form #loginForm="ngForm" (ngSubmit)="login()" class="login-form">
       <div class="form-group">
         <label for="email">Email Address</label>
@@ -16,6 +23,7 @@
           #emailInput="ngModel"
           placeholder="Enter your email"
           class="form-input"
+          [class.input-error]="emailInput.invalid && (emailInput.touched || loginForm.submitted)"
         />
         @if (emailInput.invalid && (emailInput.touched || loginForm.submitted)) {
           <div class="validation-error">
@@ -40,6 +48,7 @@
           #passwordInput="ngModel"
           placeholder="Enter your password"
           class="form-input"
+          [class.input-error]="passwordInput.invalid && (passwordInput.touched || loginForm.submitted)"
         />
         @if (passwordInput.invalid && (passwordInput.touched || loginForm.submitted)) {
           <div class="validation-error">⚠️ Password is required</div>

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface EmployeeFile {
   employeeFileId: number;
@@ -31,7 +32,7 @@ export interface PaginatedResponse<T> {
 })
 export class FileStorageService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5224/api/FileStorage';
+  private apiUrl = `${environment.apiUrl}/FileStorage`;
 
   getAllFiles(pageNumber: number = 1, pageSize: number = 10): Observable<PaginatedResponse<EmployeeFile>> {
     const params = new HttpParams()

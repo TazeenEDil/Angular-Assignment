@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AttendanceService } from '../../../services/attendance';
+import { AttendanceService } from '../../../services/attendance-service';
 import { AttendanceStats, Attendance } from '../../../models/attendance.model';
 import { AuthService } from '../../../services/auth/auth-service';
 import { Modal } from '../../modal/modal';
