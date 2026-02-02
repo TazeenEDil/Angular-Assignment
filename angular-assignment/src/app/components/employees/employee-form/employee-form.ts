@@ -61,6 +61,23 @@ export class EmployeeForm implements OnInit {
       return;
     }
 
+    // Validate email format
+    if (!this.employee.email.endsWith('@gmail.com')) {
+      this.modalTitle = 'Validation Error';
+      this.modalMessage = 'Email must be a Gmail address (@gmail.com)';
+      this.showModal = true;
+      return;
+    }
+
+    // Additional validation: check if email is valid format
+    const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+    if (!emailRegex.test(this.employee.email)) {
+      this.modalTitle = 'Validation Error';
+      this.modalMessage = 'Please enter a valid Gmail address (e.g., user@gmail.com)';
+      this.showModal = true;
+      return;
+    }
+
     this.loading = true;
 
     const employeeData = {

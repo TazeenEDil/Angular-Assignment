@@ -43,7 +43,6 @@ h2 {
   text-align: center;
 }
 
-/* ✅ ERROR ALERT STYLING */
 .alert {
   padding: 12px 16px;
   border-radius: 8px;
@@ -102,7 +101,6 @@ label {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* ✅ ERROR STATE FOR INPUTS */
 .form-input.input-error {
   border-color: #fc8181;
   background-color: #fff5f5;
@@ -239,7 +237,6 @@ label {
   font-size: 24px;
 }
 
-/* Responsive design */
 @media (max-width: 600px) {
   .login-card {
     padding: 30px 24px;

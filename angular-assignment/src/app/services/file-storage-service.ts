@@ -54,6 +54,14 @@ export class FileStorageService {
       formData.append('category', category);
     }
     
+    console.log('Uploading file:', {
+      employeeId,
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      category
+    });
+    
     return this.http.post<EmployeeFile>(`${this.apiUrl}/upload`, formData);
   }
 

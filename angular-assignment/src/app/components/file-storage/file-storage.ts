@@ -47,10 +47,6 @@ export class FileStorage implements OnInit {
     return this.authService.isAdmin();
   }
 
-  get apiBaseUrl(): string {
-    return 'http://localhost:5224';
-  }
-
   ngOnInit() {
     this.loadFiles();
     this.loadEmployees();
@@ -138,51 +134,140 @@ export class FileStorage implements OnInit {
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      const allowedTypes = ['application/pdf', 'application/msword', 
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'image/png', 'image/jpeg', 'image/jpg'];
+      // Reset previous selection
+      this.selectedFile = null;
       
+      const allowedTypes = [
+        'application/pdf', 
+        'application/msword', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/png', 
+        'image/jpeg', 
+        'image/jpg'
+      ];
+      
+      // Validate file type
       if (!allowedTypes.includes(file.type)) {
-        this.showErrorModal('Invalid file type. Allowed: PDF, DOC, DOCX, PNG, JPG');
+        this.showErrorModal('Invalid file type. Allowed types: PDF, DOC, DOCX, PNG, JPG');
         event.target.value = '';
         return;
       }
 
-      if (file.size > 10485760) {
-        this.showErrorModal('File size exceeds 10MB limit.');
+      // Validate file size (10MB = 10485760 bytes)
+      const maxSize = 10485760;
+      if (file.size > maxSize) {
+        this.showErrorModal(`File size exceeds 10MB limit. Selected file is ${this.formatFileSize(file.size)}`);
+        event.target.value = '';
+        return;
+      }
+
+      // Validate file name
+      if (file.name.length > 255) {
+        this.showErrorModal('File name is too long. Maximum 255 characters.');
+        event.target.value = '';
+        return;
+      }
+
+      // Check for empty file
+      if (file.size === 0) {
+        this.showErrorModal('Cannot upload empty file.');
         event.target.value = '';
         return;
       }
 
       this.selectedFile = file;
+      console.log('File selected:', {
+        name: file.name,
+        type: file.type,
+        size: this.formatFileSize(file.size)
+      });
     }
   }
 
   uploadFile() {
+    // Validation
     if (!this.selectedEmployeeId || !this.selectedFile) {
       this.showErrorModal('Please select an employee and a file.');
       return;
     }
 
+    // Additional validation for employee ID
+    if (this.selectedEmployeeId <= 0) {
+      this.showErrorModal('Please select a valid employee.');
+      return;
+    }
+
+    // Validate file category
+    if (!this.fileCategory || this.fileCategory.trim() === '') {
+      this.showErrorModal('Please select a file category.');
+      return;
+    }
+
     this.uploading = true;
-    this.fileStorageService.uploadFile(this.selectedEmployeeId, this.selectedFile, this.fileCategory).subscribe({
-      next: () => {
+
+    this.fileStorageService.uploadFile(
+      this.selectedEmployeeId, 
+      this.selectedFile, 
+      this.fileCategory
+    ).subscribe({
+      next: (response) => {
+        console.log('File uploaded successfully:', response);
         this.uploading = false;
         this.showUploadModal = false;
+        
+        // Reset form
+        this.selectedEmployeeId = null;
+        this.selectedFile = null;
+        this.fileCategory = 'Resume';
+        
         this.showSuccessModal('File uploaded successfully!');
         this.loadFiles();
       },
       error: err => {
         console.error('Failed to upload file:', err);
         this.uploading = false;
-        const errorMessage = err.error?.message || 'Failed to upload file. Please try again.';
+        
+        let errorMessage = 'Failed to upload file. Please try again.';
+        
+        // Handle different error types
+        if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your internet connection.';
+        } else if (err.status === 400) {
+          // Bad request - validation errors
+          if (err.error?.message) {
+            errorMessage = err.error.message;
+          } else if (err.error?.errors) {
+            // Handle validation errors from ASP.NET
+            const errors = Object.values(err.error.errors).flat();
+            errorMessage = errors.join(', ');
+          } else if (typeof err.error === 'string') {
+            errorMessage = err.error;
+          } else {
+            errorMessage = 'Invalid file or form data. Please check your inputs.';
+          }
+        } else if (err.status === 401) {
+          errorMessage = 'You are not authorized. Please login again.';
+        } else if (err.status === 403) {
+          errorMessage = 'You do not have permission to upload files.';
+        } else if (err.status === 404) {
+          errorMessage = 'Upload endpoint not found. Please contact support.';
+        } else if (err.status === 413) {
+          errorMessage = 'File is too large. Maximum size is 10MB.';
+        } else if (err.status === 415) {
+          errorMessage = 'Unsupported file type.';
+        } else if (err.status === 500) {
+          errorMessage = 'Server error occurred. Please try again later.';
+        } else if (err.error?.message) {
+          errorMessage = err.error.message;
+        }
+        
         this.showErrorModal(errorMessage);
       }
     });
   }
 
   previewFile(file: EmployeeFile) {
-    console.log('Opening preview in new tab for file:', file);
+    console.log('Previewing file:', file);
     
     const previewableTypes = ['pdf', 'png', 'jpg', 'jpeg'];
     const fileExt = file.fileType.toLowerCase();
@@ -192,43 +277,40 @@ export class FileStorage implements OnInit {
       return;
     }
 
-    // Get preview URL and open in new tab
-    this.fileStorageService.getPreviewUrl(file.employeeFileId).subscribe({
-      next: response => {
-        console.log('Preview URL response:', response);
+    // Download the file and open it in a new tab
+    this.fileStorageService.downloadFile(file.employeeFileId).subscribe({
+      next: blob => {
+        console.log('Downloaded blob for preview:', blob);
         
-        // Construct full URL
-        const fullUrl = response.url.startsWith('http') 
-          ? response.url 
-          : this.apiBaseUrl + response.url;
-        
-        console.log('Opening URL in new tab:', fullUrl);
+        // Create a blob URL
+        const blobUrl = window.URL.createObjectURL(blob);
         
         // Open in new tab
-        window.open(fullUrl, '_blank');
+        const newWindow = window.open(blobUrl, '_blank');
+        
+        if (!newWindow) {
+          this.showErrorModal('Please allow popups to preview files.');
+          window.URL.revokeObjectURL(blobUrl);
+          return;
+        }
+        
+        // Clean up blob URL after the browser has loaded it
+        // Using a longer timeout to ensure the file is fully loaded
+        setTimeout(() => {
+          window.URL.revokeObjectURL(blobUrl);
+        }, 2000);
       },
       error: err => {
-        console.error('Failed to get preview URL, trying download method:', err);
+        console.error('Failed to preview file:', err);
         
-        // Fallback - download and create blob URL to open in new tab
-        this.fileStorageService.downloadFile(file.employeeFileId).subscribe({
-          next: blob => {
-            console.log('Downloaded blob for preview:', blob);
-            const blobUrl = window.URL.createObjectURL(blob);
-            
-            // Open blob URL in new tab
-            window.open(blobUrl, '_blank');
-            
-            // Clean up blob URL after a delay
-            setTimeout(() => {
-              window.URL.revokeObjectURL(blobUrl);
-            }, 100);
-          },
-          error: downloadErr => {
-            console.error('Failed to download file for preview:', downloadErr);
-            this.showErrorModal('Failed to preview file. Please try downloading instead.');
-          }
-        });
+        let errorMessage = 'Failed to preview file. Please try again.';
+        if (err.status === 404) {
+          errorMessage = 'File not found on the server.';
+        } else if (err.status === 403) {
+          errorMessage = 'You do not have permission to preview this file.';
+        }
+        
+        this.showErrorModal(errorMessage);
       }
     });
   }
@@ -247,7 +329,15 @@ export class FileStorage implements OnInit {
       },
       error: err => {
         console.error('Failed to download file:', err);
-        this.showErrorModal('Failed to download file.');
+        
+        let errorMessage = 'Failed to download file.';
+        if (err.status === 404) {
+          errorMessage = 'File not found on the server.';
+        } else if (err.status === 403) {
+          errorMessage = 'You do not have permission to download this file.';
+        }
+        
+        this.showErrorModal(errorMessage);
       }
     });
   }
@@ -324,5 +414,9 @@ export class FileStorage implements OnInit {
 
   closeUploadModal() {
     this.showUploadModal = false;
+    // Reset form when closing
+    this.selectedEmployeeId = null;
+    this.selectedFile = null;
+    this.fileCategory = 'Resume';
   }
 }

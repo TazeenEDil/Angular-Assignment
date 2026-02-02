@@ -1,82 +1,137 @@
 .admin-time-tracking-container {
-  padding: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
-  margin-left: 260px;
+  margin-left: 270px;
+  padding: 30px;
+  width: calc(100vw - 270px);
+  max-width: none; 
+  overflow-x: auto; 
 }
 
 .page-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
   color: #333;
+  font-size: 28px;
+  margin: 0 0 30px 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e0e0e0;
 }
 
 .date-selector {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
+  gap: 15px;
 }
 
 .date-selector label {
   font-weight: 600;
-  color: #495057;
+  color: #333;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-control {
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  max-width: 200px;
+}
+
+.form-control:focus {
+  border-color: #667eea;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.loading::before {
+  content: '';
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .time-tracking-table {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .time-tracking-table h3 {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 15px;
-  color: #495057;
+  margin: 0;
+  padding: 20px;
+  color: #333;
+  background: #f8f9ff;
+  border-bottom: 2px solid #e0e0e0;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
 }
 
 .table thead {
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
 }
 
 .table th {
-  padding: 12px 8px;
+  padding: 16px;
   text-align: left;
   font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
   font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.table td {
-  padding: 12px 8px;
-  border-bottom: 1px solid #dee2e6;
-  font-size: 14px;
-  color: #212529;
+.table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
 }
 
 .table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: #f8f9ff;
+}
+
+.table td {
+  padding: 16px;
+  color: #333;
+  font-size: 14px;
 }
 
 .status-badge {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .status-present {
@@ -100,9 +155,12 @@
 }
 
 .badge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   font-size: 14px;
   font-weight: 600;
 }
@@ -117,40 +175,59 @@
   color: white;
 }
 
-.loading {
-  text-align: center;
-  padding: 40px;
-  font-size: 18px;
-  color: #6c757d;
-}
-
 .no-data {
   text-align: center;
-  padding: 40px;
-  color: #6c757d;
+  padding: 60px 20px !important;
 }
 
 .no-data p {
   font-size: 16px;
   margin: 0;
+  color: #999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 }
 
-.form-control {
-  padding: 8px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.form-control:focus {
-  border-color: #80bdff;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+.no-data p::before {
+  content: '📋';
+  font-size: 48px;
 }
 
 @media (max-width: 768px) {
   .admin-time-tracking-container {
     margin-left: 0;
-    padding: 15px;
+    padding: 20px;
+    max-width: 100%;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .date-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .form-control {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .time-tracking-table {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 900px;
+  }
+
+  .table th,
+  .table td {
+    padding: 12px 8px;
+    font-size: 13px;
   }
 }
